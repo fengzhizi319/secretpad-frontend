@@ -13,7 +13,7 @@ export default defineConfig({
 Powered by SecretPad`,
     prefersColor: { default: 'auto' },
     socialLinks: {
-      github: 'https://github.com/secretflow/secretpad-frontend',
+      github: 'https://github.com/fengzhizi319/secretpad-frontend',
     },
   },
 });

@@ -4,7 +4,7 @@
 
 画布模块设计
 
-![image](https://github.com/secretflow/secretpad-frontend/assets/46579290/bc56b079-0b79-4305-8406-3181a4fd0620)
+![image](https://github.com/fengzhizi319/secretpad-frontend/assets/46579290/bc56b079-0b79-4305-8406-3181a4fd0620)
 
 - Util: 图相关的工具方法
 - 图形：图形注册
@@ -19,4 +19,4 @@
 
 画布数据流
 
-![image](https://github.com/secretflow/secretpad-frontend/assets/46579290/9b9374e0-dbe0-4258-8f03-f309fd350e40)
+![image](https://github.com/fengzhizi319/secretpad-frontend/assets/46579290/9b9374e0-dbe0-4258-8f03-f309fd350e40)

@@ -4,7 +4,7 @@ English (US) | [简体中文](README.zh-Hans.md)
 
 Modules in DAG
 
-<img width="790" alt="image" src="https://github.com/secretflow/secretpad-frontend/assets/46579290/d5c1cd39-b281-460d-a9cb-667a2ff7c0ed">
+<img width="790" alt="image" src="https://github.com/fengzhizi319/secretpad-frontend/assets/46579290/d5c1cd39-b281-460d-a9cb-667a2ff7c0ed">
 
 - Util: Common utils in graph
 - Shape：Register the shapes for nodes and edges in graph
@@ -18,4 +18,4 @@ Modules in DAG
 Data flow in DAG
 
 <img width="634" alt="image"
-src="https://github.com/secretflow/secretpad-frontend/assets/46579290/af9e8811-13eb-4c84-8a02-6d41862c2e90">
+src="https://github.com/fengzhizi319/secretpad-frontend/assets/46579290/af9e8811-13eb-4c84-8a02-6d41862c2e90">
