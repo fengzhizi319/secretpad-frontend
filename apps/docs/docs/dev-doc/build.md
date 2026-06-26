@@ -21,6 +21,6 @@ $ pnpm build
 
 ## 部署
 
-如果是与 [SecretPad](https://github.com/secretflow/secretpad/tree/main) 一同部署，需要先将构建产物放在 SecretPad 项目中，之后执行 SecretPad 镜像构建脚本。
+如果是与 [c-life](https://github.com/secretflow/secretpad/tree/main) 一同部署，需要先将构建产物放在 c-life 项目中，之后执行 c-life 镜像构建脚本。
 
-在 SecretPad 下新建 `/secretpad-web/src/main/resources/static` 目录，将 `dist` 目录下的产物放在该目录中（如果已有该目录则进行文件替换），之后运行 SecretPad 的 `bash ./scripts/build.sh` 命令重新构建镜像（注意不是 `make build` 命令，`make build` 会拉取官方 Release 的前端产物构建镜像）。
+在 c-life 下新建 `/secretpad-web/src/main/resources/static` 目录，将 `dist` 目录下的产物放在该目录中（如果已有该目录则进行文件替换），之后运行 c-life 的 `bash ./scripts/build.sh` 命令重新构建镜像（注意不是 `make build` 命令，`make build` 会拉取官方 Release 的前端产物构建镜像）。

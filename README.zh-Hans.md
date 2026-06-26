@@ -1,6 +1,6 @@
 [English (US)](README.md) | 简体中文
 
-# 隐语平台
+# c-life 平台
 
 ## 开发
 

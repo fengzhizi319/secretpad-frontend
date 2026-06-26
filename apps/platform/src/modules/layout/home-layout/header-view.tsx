@@ -273,7 +273,7 @@ export const HeaderComponent = () => {
               }
             >
               <GlobalOutlined />
-              隐语开源社区
+              c-life 开源社区
             </span>
             {/* <span className={styles.line} /> */}
             <span

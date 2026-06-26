@@ -30,5 +30,98 @@ body {
 }
 
 a {
-  color: #1677ff;
+  color: #2563eb;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #1d4ed8;
+  }
+}
+
+// c-life 品牌全局滚动条
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: rgb(0 0 0 / 15%);
+
+  &:hover {
+    background: rgb(0 0 0 / 25%);
+  }
+}
+
+// 卡片统一美化
+.ant-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgb(0 0 0 / 10%);
+  }
+}
+
+// 表格统一美化
+.ant-table {
+  .ant-table-container {
+    border-radius: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    background: #f8fafc;
+    font-weight: 600;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #eff6ff;
+  }
+}
+
+// 按钮统一过渡
+.ant-btn {
+  transition: all 0.2s ease;
+
+  &.ant-btn-primary {
+    box-shadow: 0 2px 6px rgb(37 99 235 / 25%);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgb(37 99 235 / 35%);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// 弹窗/抽屉统一圆角与阴影
+.ant-modal-content,
+.ant-modal-header {
+  border-radius: 12px;
+}
+
+.ant-modal-content {
+  box-shadow: 0 12px 40px rgb(0 0 0 / 12%);
+}
+
+// 输入框聚焦品牌色
+.ant-input,
+.ant-input-affix-wrapper {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover,
+  &:focus,
+  &-focused {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgb(37 99 235 / 10%);
+  }
+}
+
+// 空状态柔和
+.ant-empty {
+  color: rgb(0 0 0 / 45%);
 }

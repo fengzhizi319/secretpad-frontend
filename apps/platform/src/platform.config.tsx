@@ -13,10 +13,13 @@ if (hour < 12) {
 export default {
   theme: {
     token: {
-      colorPrimary: '#0068fa',
+      colorPrimary: '#2563eb',
+      borderRadius: 8,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      boxShadowSecondary: '0 6px 24px rgba(0, 0, 0, 0.12)',
     },
   },
-  slogan: '科技护航数据安全 开源加速数据流通', // 全局标语
+  slogan: 'c-life，让数据流通更安全', // 全局标语
   header: {
     logo: <Logo />, // 左上角Logo React Component
     rightLinks: true, // boolean | React Component
@@ -25,7 +28,7 @@ export default {
     showTemplate: true, // 创建项目时是否显示模板选项
   },
   home: {
-    HomePageTitle: `${time}好👋，欢迎来到隐语开源平台`,
+    HomePageTitle: `${time}好👋，欢迎来到 c-life 开源平台`,
   },
   guide: true, //
 };

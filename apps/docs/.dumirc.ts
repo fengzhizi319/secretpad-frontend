@@ -6,11 +6,11 @@ export default defineConfig({
   themeConfig: {
     hd: { rules: [] },
     rtl: true,
-    name: 'SecretPad前端开发',
+    name: 'c-life 前端开发',
     logo: 'https://avatars.githubusercontent.com/u/103737651?s=48&v=4',
     footer: `Open-source MIT Licensed | Copyright © 2023-present
 <br />
-Powered by SecretPad`,
+Powered by c-life`,
     prefersColor: { default: 'auto' },
     socialLinks: {
       github: 'https://github.com/fengzhizi319/secretpad-frontend',

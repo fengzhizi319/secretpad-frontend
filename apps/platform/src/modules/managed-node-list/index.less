@@ -7,6 +7,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    .headerText {
+      color: #1e293b;
+      font-size: 18px;
+      font-weight: 600;
+    }
   }
 
   .content {
@@ -17,12 +23,20 @@
       font-size: 12px;
     }
 
-    :global(.ant-table-thead) {
-      height: 54px;
-    }
+    :global {
+      .ant-table-wrapper {
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+      }
 
-    :global(.ant-table-row) {
-      height: 62px;
+      .ant-table-thead {
+        height: 54px;
+      }
+
+      .ant-table-row {
+        height: 62px;
+      }
     }
   }
 }

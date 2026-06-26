@@ -1,29 +1,52 @@
 .loginForm {
-  width: 70%;
-  margin: auto;
+  width: 100%;
+  max-width: 420px;
+  padding: 48px 40px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 10%);
+  text-align: center;
 
   .title {
-    margin: 0;
-    margin-bottom: 12px;
-    font-size: 28px;
+    margin: 0 0 16px;
+    color: #1e293b;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
   }
 
   .slogan {
-    margin: 0;
-    margin-bottom: 58px;
-    color: rgb(0 0 0 / 65%);
+    margin: 0 0 40px;
+    color: rgb(0 0 0 / 55%);
+    font-size: 15px;
   }
 
   .loginInput {
-    max-width: 400px;
+    max-width: 100%;
+    height: 44px;
+    border-radius: 8px;
   }
 
   .loginBtnItem {
-    max-width: 400px;
-    margin: auto;
+    max-width: 100%;
+    margin: 32px 0 0;
   }
 
   .loginBtn {
     width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+    box-shadow: 0 4px 14px rgb(37 99 235 / 35%);
+    font-size: 16px;
+    font-weight: 600;
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
+      box-shadow: 0 6px 18px rgb(37 99 235 / 45%);
+      transform: translateY(-1px);
+    }
   }
 }

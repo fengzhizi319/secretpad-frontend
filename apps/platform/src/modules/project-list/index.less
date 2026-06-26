@@ -72,8 +72,10 @@
       min-height: 153px;
       box-sizing: border-box;
       border: 1px solid transparent;
-      border-radius: 8px;
-      background: #f7f8fa;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+      transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 
       .listBox {
         padding: 12px 16px 0;
@@ -93,7 +95,7 @@
         }
 
         :global(.anticon-edit):hover {
-          color: rgb(22 119 255 / 100%);
+          color: #2563eb;
           cursor: pointer;
         }
       }
@@ -145,7 +147,7 @@
         }
 
         .count:hover {
-          color: rgb(22 119 255 / 100%);
+          color: #2563eb;
           cursor: pointer;
         }
 
@@ -203,13 +205,13 @@
 
     .projectBox:hover {
       z-index: 99;
-      border: 1px solid #0068fa;
-      box-shadow: 0 1px 1px 0 rgb(0 0 0 / 8%), 0 1px 8px 0 rgb(0 0 0 / 4%),
-        0 2px 12px 0 rgb(0 0 0 / 10%);
+      border: 1px solid #2563eb;
+      box-shadow: 0 8px 24px rgb(37 99 235 / 12%);
+      transform: translateY(-2px);
 
       .editButton {
         display: block;
-        color: #0068fa;
+        color: #2563eb;
       }
 
       .time {

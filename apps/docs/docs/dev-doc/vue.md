@@ -9,15 +9,15 @@ mobile: false
 
 # 集成到 Vue 项目
 
-如果你想在现有的 Vue 项目中集成 SecretPad 前端，这里会给你一些建议。
+如果你想在现有的 Vue 项目中集成 c-life 前端，这里会给你一些建议。
 
-## 场景一：SecretPad 平台或者某个页面直接集成
+## 场景一：c-life 平台或者某个页面直接集成
 
 这里推荐利用 [qiankun](https://qiankun.umijs.org/zh/guide) 微前端框架进行现有 Vue 项目的改造
 
-## 场景二：将 SecretPad 某个组件抽出来，放到 Vue 项目里面运行
+## 场景二：将 c-life 某个组件抽出来，放到 Vue 项目里面运行
 
-得益于 SecretPad 模块的高内聚、低耦合的设计，将 SecretPad 的 React 模块迁移至 Vue 仅需要少量的工作
+得益于 c-life 模块的高内聚、低耦合的设计，将 c-life 的 React 模块迁移至 Vue 仅需要少量的工作
 
 例如如下的一个模块：
 
