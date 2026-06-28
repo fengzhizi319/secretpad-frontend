@@ -7,6 +7,28 @@ export const routes = [
       { path: '/', component: 'new-home', wrappers: ['@/wrappers/center-auth'] },
       { path: '/home', component: 'new-home', wrappers: ['@/wrappers/center-auth'] },
       {
+        path: '/dashboard',
+        component: 'dashboard',
+        wrappers: ['@/wrappers/center-auth'],
+      },
+      {
+        path: '/data-source',
+        component: 'data-source',
+        wrappers: ['@/wrappers/center-auth'],
+      },
+      {
+        path: '/data-source/:id',
+        component: 'data-source-detail',
+        wrappers: ['@/wrappers/center-auth'],
+      },
+      {
+        path: '/data-table',
+        component: 'data-table',
+        wrappers: ['@/wrappers/center-auth'],
+      },
+      { path: '/nodes', component: 'nodes', wrappers: ['@/wrappers/center-auth'] },
+      { path: '/graphs', component: 'graphs', wrappers: ['@/wrappers/center-auth'] },
+      {
         path: '/dag',
         component: 'dag',
         wrappers: ['@/wrappers/p2p-center-auth', '@/wrappers/component-wrapper'],
