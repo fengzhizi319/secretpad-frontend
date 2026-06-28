@@ -271,7 +271,7 @@ export const HeaderComponent = () => {
               onClick={() => viewInstance.goto('https://github.com/c-life')}
             >
               <GlobalOutlined />
-              c-life 开源社区
+              c-life 社区
             </span>
             {/* <span className={styles.line} /> */}
             <span

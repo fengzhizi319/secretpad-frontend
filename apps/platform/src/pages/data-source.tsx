@@ -13,8 +13,8 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 
-import * as DataSourceController from '@/services/secretpad/DataSourceController';
 import { formatTimestamp } from '@/modules/dag-result/utils';
+import * as DataSourceController from '@/services/secretpad/DataSourceController';
 
 interface DataSourceItem {
   datasourceId?: string;
@@ -46,10 +46,10 @@ const DataSourcePage: React.FC = () => {
         ownerId: '', // Will be populated with current user's node ID
       });
 
-      if (response.code === 0) {
-        setDataSources(response.data?.datasources || []);
+      if (response.status?.code === 0) {
+        setDataSources((response.data?.infos || []) as DataSourceItem[]);
       } else {
-        message.error(response.msg || 'Failed to load data sources');
+        message.error(response.status?.msg || 'Failed to load data sources');
       }
     } catch (error) {
       console.error('Error loading data sources:', error);
@@ -73,11 +73,11 @@ const DataSourcePage: React.FC = () => {
             ownerId: '', // Will be populated with current user's node ID
           });
 
-          if (response.code === 0) {
+          if (response.status?.code === 0) {
             message.success('Data source deleted successfully');
             loadDataSourceList();
           } else {
-            message.error(response.msg || 'Failed to delete data source');
+            message.error(response.status?.msg || 'Failed to delete data source');
           }
         } catch (error) {
           console.error('Error deleting data source:', error);
@@ -89,27 +89,16 @@ const DataSourcePage: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     try {
-      let response;
+      const createRequest: API.CreateDatasourceRequest = {
+        name: values.datasourceName,
+        type: values.datasourceType,
+        dataSourceInfo: values.definition || {},
+        ownerId: '', // Will be populated with current user's node ID
+      };
 
-      if (editingDataSource) {
-        // Update existing data source - though the API doesn't seem to support update directly
-        // We'll treat this as a create operation for demonstration
-        response = await DataSourceController.create({
-          datasourceName: values.datasourceName,
-          datasourceType: values.datasourceType,
-          definition: JSON.stringify(values.definition || {}),
-          ownerId: '', // Will be populated with current user's node ID
-        });
-      } else {
-        response = await DataSourceController.create({
-          datasourceName: values.datasourceName,
-          datasourceType: values.datasourceType,
-          definition: JSON.stringify(values.definition || {}),
-          ownerId: '', // Will be populated with current user's node ID
-        });
-      }
+      const response = await DataSourceController.create(createRequest);
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success(
           editingDataSource
             ? 'Data source updated successfully'
@@ -120,7 +109,7 @@ const DataSourcePage: React.FC = () => {
         setEditingDataSource(null);
         loadDataSourceList();
       } else {
-        message.error(response.msg || 'Operation failed');
+        message.error(response.status?.msg || 'Operation failed');
       }
     } catch (error) {
       console.error('Error saving data source:', error);

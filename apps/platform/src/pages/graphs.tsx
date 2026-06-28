@@ -14,8 +14,8 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 
-import * as GraphController from '@/services/secretpad/GraphController';
 import { formatTimestamp } from '@/modules/dag-result/utils';
+import * as GraphController from '@/services/secretpad/GraphController';
 
 interface GraphItem {
   graphId?: string;
@@ -94,11 +94,11 @@ const GraphPage: React.FC = () => {
             projectId: '', // Will be populated with actual project ID
           });
 
-          if (response.code === 0) {
+          if (response.status?.code === 0) {
             message.success('Graph deleted successfully');
             loadGraphs();
           } else {
-            message.error(response.msg || 'Failed to delete graph');
+            message.error(response.status?.msg || 'Failed to delete graph');
           }
         } catch (error) {
           console.error('Error deleting graph:', error);
@@ -112,26 +112,29 @@ const GraphPage: React.FC = () => {
     try {
       let response;
 
+      const graphDef = values.graphDef ? JSON.parse(values.graphDef) : {};
+
       if (editingGraph) {
         // Update graph - using fullUpdateGraph API
-        response = await GraphController.fullUpdateGraph({
+        const updateRequest: API.FullUpdateGraphRequest = {
           graphId: editingGraph.graphId || '',
           projectId: values.projectId,
-          graphDef: JSON.stringify(values.graphDef || {}),
-          graphName: values.graphName,
-          description: values.description,
-        });
+          nodes: graphDef.nodes || [],
+          edges: graphDef.edges || [],
+        };
+        response = await GraphController.fullUpdateGraph(updateRequest);
       } else {
         // Create new graph
-        response = await GraphController.createGraph({
+        const createRequest: API.CreateGraphRequest = {
           projectId: values.projectId,
-          graphName: values.graphName,
-          graphDef: JSON.stringify(values.graphDef || {}),
-          description: values.description,
-        });
+          name: values.graphName,
+          nodes: graphDef.nodes || [],
+          edges: graphDef.edges || [],
+        };
+        response = await GraphController.createGraph(createRequest);
       }
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success(
           editingGraph ? 'Graph updated successfully' : 'Graph created successfully',
         );
@@ -140,7 +143,7 @@ const GraphPage: React.FC = () => {
         setEditingGraph(null);
         loadGraphs();
       } else {
-        message.error(response.msg || 'Operation failed');
+        message.error(response.status?.msg || 'Operation failed');
       }
     } catch (error) {
       console.error('Error saving graph:', error);
@@ -166,10 +169,10 @@ const GraphPage: React.FC = () => {
         projectId: '', // Will be populated with actual project ID
       });
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success('Graph started successfully');
       } else {
-        message.error(response.msg || 'Failed to start graph');
+        message.error(response.status?.msg || 'Failed to start graph');
       }
     } catch (error) {
       console.error('Error starting graph:', error);

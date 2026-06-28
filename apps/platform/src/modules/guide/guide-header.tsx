@@ -28,7 +28,7 @@ export const GuideHeader: React.FC = () => {
       </div>
       <div className={styles.create}>
         <div className={styles.title}>Hi，欢迎来到Secretpad-Center平台</div>
-        <div className={styles.titleDesc}>科技护航数据安全，开源加速数据流通</div>
+        <div className={styles.titleDesc}>科技护航数据安全</div>
         <div className={styles.nodeContent}>
           <GuideNode />
         </div>

@@ -16,7 +16,7 @@ export default {
       colorPrimary: '#0068fa',
     },
   },
-  slogan: '科技护航数据安全 开源加速数据流通', // 全局标语
+  slogan: '科技护航数据安全', // 全局标语
   header: {
     logo: <Logo />, // 左上角Logo React Component
     rightLinks: true, // boolean | React Component
@@ -25,7 +25,7 @@ export default {
     showTemplate: true, // 创建项目时是否显示模板选项
   },
   home: {
-    HomePageTitle: `${time}好👋，欢迎来到 c-life 开源平台`,
+    HomePageTitle: `${time}好👋，欢迎来到 c-life 隐私计算平台`,
   },
   guide: true, //
 };

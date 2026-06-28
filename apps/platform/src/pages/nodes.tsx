@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SyncOutlined,
+} from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -13,28 +18,17 @@ import {
   Popconfirm,
   Badge,
 } from 'antd';
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  SyncOutlined,
-} from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+
 import * as NodeController from '@/services/secretpad/NodeController';
-import {
-  NodeVO,
-  PageNodeRequest,
-  CreateNodeRequest,
-  UpdateNodeRequest,
-  NodeIdRequest,
-} from '@/services/secretpad/typings';
 
 const { TextArea } = Input;
 
 interface NodePageState {
-  nodes: NodeVO[];
+  nodes: API.NodeVO[];
   loading: boolean;
   modalVisible: boolean;
-  editingNode: NodeVO | null;
+  editingNode: API.NodeVO | null;
   currentPage: number;
   pageSize: number;
   total: number;
@@ -61,26 +55,22 @@ const NodesPage: React.FC = () => {
     try {
       setState((prev) => ({ ...prev, loading: true }));
 
-      const request: PageNodeRequest = {
+      const request: API.PageNodeRequest = {
         page: state.currentPage,
-        pageSize: state.pageSize,
-        nodeId: '',
-        name: '',
-        address: '',
-        nodeType: undefined,
+        size: state.pageSize,
       };
 
       const response = await NodeController.page(request);
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         setState((prev) => ({
           ...prev,
-          nodes: response.data?.data || [],
+          nodes: response.data?.list || [],
           total: response.data?.total || 0,
           loading: false,
         }));
       } else {
-        message.error(response.msg || 'Failed to load nodes');
+        message.error(response.status?.msg || 'Failed to load nodes');
         setState((prev) => ({ ...prev, loading: false }));
       }
     } catch (error) {
@@ -95,31 +85,29 @@ const NodesPage: React.FC = () => {
       let response;
 
       if (state.editingNode) {
-        // Update existing node
-        const updateRequest: UpdateNodeRequest = {
+        // Update existing node (only netAddress can be updated)
+        const updateRequest: API.UpdateNodeRequest = {
           nodeId: state.editingNode.nodeId!,
-          name: values.name,
-          address: values.address,
-          description: values.description,
-          nodeType: values.nodeType,
+          netAddress: values.address,
         };
 
         response = await NodeController.update(updateRequest);
       } else {
         // Create new node
-        const createRequest: CreateNodeRequest = {
+        const nodeTypeToMode: Record<string, number> = {
+          MPC: 1,
+          TEE: 2,
+          'MPC&TEE': 4,
+        };
+        const createRequest: API.CreateNodeRequest = {
           name: values.name,
-          address: values.address,
-          description: values.description,
-          nodeType: values.nodeType,
-          cert: values.cert || '',
-          privateKey: values.privateKey || '',
+          mode: nodeTypeToMode[values.nodeType] || 1,
         };
 
         response = await NodeController.createNode(createRequest);
       }
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success(
           `${state.editingNode ? 'Updated' : 'Created'} node successfully`,
         );
@@ -128,7 +116,8 @@ const NodesPage: React.FC = () => {
         loadNodes();
       } else {
         message.error(
-          response.msg || `Failed to ${state.editingNode ? 'update' : 'create'} node`,
+          response.status?.msg ||
+            `Failed to ${state.editingNode ? 'update' : 'create'} node`,
         );
       }
     } catch (error) {
@@ -144,11 +133,11 @@ const NodesPage: React.FC = () => {
     try {
       const response = await NodeController.deleteNode({ nodeId });
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success('Node deleted successfully');
         loadNodes();
       } else {
-        message.error(response.msg || 'Failed to delete node');
+        message.error(response.status?.msg || 'Failed to delete node');
       }
     } catch (error) {
       console.error('Error deleting node:', error);
@@ -160,11 +149,11 @@ const NodesPage: React.FC = () => {
     try {
       const response = await NodeController.refresh({ nodeId });
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success('Node refreshed successfully');
         loadNodes();
       } else {
-        message.error(response.msg || 'Failed to refresh node');
+        message.error(response.status?.msg || 'Failed to refresh node');
       }
     } catch (error) {
       console.error('Error refreshing node:', error);
@@ -172,13 +161,13 @@ const NodesPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (record: NodeVO) => {
+  const handleEdit = (record: API.NodeVO) => {
     setState((prev) => ({ ...prev, editingNode: record, modalVisible: true }));
     form.setFieldsValue({
-      name: record.name,
-      address: record.address,
+      name: record.nodeName,
+      address: record.netAddress,
       description: record.description,
-      nodeType: record.nodeType,
+      nodeType: record.type,
     });
   };
 
@@ -199,18 +188,18 @@ const NodesPage: React.FC = () => {
     },
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'nodeName',
+      key: 'nodeName',
     },
     {
       title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
+      dataIndex: 'netAddress',
+      key: 'netAddress',
     },
     {
       title: 'Type',
-      dataIndex: 'nodeType',
-      key: 'nodeType',
+      dataIndex: 'type',
+      key: 'type',
       render: (type: string) => (
         <Tag color={type === 'TEE' ? 'orange' : type === 'MPC' ? 'blue' : 'green'}>
           {type || 'Unknown'}
@@ -219,8 +208,8 @@ const NodesPage: React.FC = () => {
     },
     {
       title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'nodeStatus',
+      key: 'nodeStatus',
       render: (status: string) => {
         let color = 'default';
         if (status === 'READY') color = 'success';
@@ -239,7 +228,7 @@ const NodesPage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: NodeVO) => (
+      render: (_: any, record: API.NodeVO) => (
         <Space size="middle">
           <Button
             size="small"

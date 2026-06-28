@@ -10,12 +10,11 @@ import {
   Space,
   Table,
   message,
-  Select,
 } from 'antd';
 import { useEffect, useState } from 'react';
 
-import * as DatatableController from '@/services/secretpad/DatatableController';
 import { formatTimestamp } from '@/modules/dag-result/utils';
+import * as DatatableController from '@/services/secretpad/DatatableController';
 
 interface DataTableItem {
   datatableId?: string;
@@ -47,10 +46,10 @@ const DataTablePage: React.FC = () => {
         ownerId: '', // Will be populated with current user's node ID
       });
 
-      if (response.code === 0) {
-        setDataTables(response.data?.datatables || []);
+      if (response.status?.code === 0) {
+        setDataTables((response.data?.datatableNodeVOList || []) as DataTableItem[]);
       } else {
-        message.error(response.msg || 'Failed to load data tables');
+        message.error(response.status?.msg || 'Failed to load data tables');
       }
     } catch (error) {
       console.error('Error loading data tables:', error);
@@ -74,11 +73,11 @@ const DataTablePage: React.FC = () => {
             nodeId: '', // Will be populated with current user's node ID
           });
 
-          if (response.code === 0) {
+          if (response.status?.code === 0) {
             message.success('Data table deleted successfully');
             loadDataTables();
           } else {
-            message.error(response.msg || 'Failed to delete data table');
+            message.error(response.status?.msg || 'Failed to delete data table');
           }
         } catch (error) {
           console.error('Error deleting data table:', error);
@@ -90,31 +89,17 @@ const DataTablePage: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     try {
-      let response;
+      const createRequest: API.CreateDatatableRequest = {
+        datatableName: values.datatableName,
+        datasourceId: values.datasourceId,
+        nodeIds: values.nodeId ? [values.nodeId] : [],
+        ownerId: values.ownerId || '',
+        desc: values.description,
+      };
 
-      if (editingDataTable) {
-        // Note: The API doesn't seem to have an update endpoint for data tables
-        // We'll treat this as a create operation for demonstration
-        response = await DatatableController.createDataTable({
-          datatableName: values.datatableName,
-          datasourceId: values.datasourceId,
-          nodeId: '', // Will be populated with current user's node ID
-          ownerId: '', // Will be populated with current user's node ID
-          schema: JSON.stringify(values.schema || {}),
-          description: values.description,
-        });
-      } else {
-        response = await DatatableController.createDataTable({
-          datatableName: values.datatableName,
-          datasourceId: values.datasourceId,
-          nodeId: '', // Will be populated with current user's node ID
-          ownerId: '', // Will be populated with current user's node ID
-          schema: JSON.stringify(values.schema || {}),
-          description: values.description,
-        });
-      }
+      const response = await DatatableController.createDataTable(createRequest);
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success(
           editingDataTable
             ? 'Data table updated successfully'
@@ -125,7 +110,7 @@ const DataTablePage: React.FC = () => {
         setEditingDataTable(null);
         loadDataTables();
       } else {
-        message.error(response.msg || 'Operation failed');
+        message.error(response.status?.msg || 'Operation failed');
       }
     } catch (error) {
       console.error('Error saving data table:', error);

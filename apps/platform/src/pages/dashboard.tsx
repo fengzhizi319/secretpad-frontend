@@ -1,18 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Table, Space, Tag, Progress, Badge } from 'antd';
 import {
   AppstoreOutlined,
   DatabaseOutlined,
   TeamOutlined,
   ProjectOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
 } from '@ant-design/icons';
+import { Card, Row, Col, Statistic, Table, Space, Tag, Progress, Badge } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'umi';
 
-import * as ProjectController from '@/services/secretpad/ProjectController';
 import * as NodeController from '@/services/secretpad/NodeController';
+import * as ProjectController from '@/services/secretpad/ProjectController';
 
 interface DashboardStats {
   projects: number;
@@ -42,7 +39,7 @@ const DashboardPage: React.FC = () => {
 
       // Load projects
       const projectResponse = await ProjectController.listProject();
-      if (projectResponse.code === 0) {
+      if (projectResponse.status?.code === 0) {
         const projects = projectResponse.data || [];
         setStats((prev) => ({ ...prev, projects: projects.length }));
         // Show recent 5 projects
@@ -52,7 +49,7 @@ const DashboardPage: React.FC = () => {
       // Load nodes (using list instead of page for simplicity)
       try {
         const nodeResponse = await NodeController.listNode();
-        if (nodeResponse.code === 0) {
+        if (nodeResponse.status?.code === 0) {
           const nodes = nodeResponse.data || [];
           setStats((prev) => ({ ...prev, nodes: nodes.length }));
           // Show recent 5 nodes

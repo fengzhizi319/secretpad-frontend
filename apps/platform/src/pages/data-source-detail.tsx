@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { ArrowLeftOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -8,33 +8,20 @@ import {
   Space,
   message,
   Popconfirm,
-  Modal,
   Form,
   Input,
   Select,
 } from 'antd';
-import {
-  ArrowLeftOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
 import { history, useParams } from 'umi';
+
 import * as DataSourceController from '@/services/secretpad/DataSourceController';
-import {
-  DatasourceDetailAggregateVO,
-  CreateDatasourceRequest,
-} from '@/services/secretpad/typings';
 
 const { TextArea } = Input;
 
-interface DataSourceDetailPageParams {
-  id: string;
-}
-
 const DataSourceDetailPage: React.FC = () => {
-  const { id } = useParams<DataSourceDetailPageParams>();
-  const [dataSource, setDataSource] = useState<DatasourceDetailAggregateVO | null>(
+  const { id } = useParams<{ id?: string }>();
+  const [dataSource, setDataSource] = useState<API.DatasourceDetailAggregateVO | null>(
     null,
   );
   const [loading, setLoading] = useState<boolean>(true);
@@ -53,20 +40,20 @@ const DataSourceDetailPage: React.FC = () => {
         ownerId: '', // This would come from user context
       });
 
-      if (response.code === 0) {
-        setDataSource(response.data);
+      if (response.status?.code === 0) {
+        setDataSource(response.data || null);
         if (editing) {
           editForm.setFieldsValue({
             name: response.data?.name,
-            description: response.data?.description,
+            description: response.data?.info?.description,
             type: response.data?.type,
-            endpoint: response.data?.connectionInfo?.endpoint,
-            username: response.data?.connectionInfo?.username,
-            database: response.data?.connectionInfo?.database,
+            endpoint: response.data?.info?.endpoint,
+            username: response.data?.info?.username,
+            database: response.data?.info?.database,
           });
         }
       } else {
-        message.error(response.msg || 'Failed to load data source');
+        message.error(response.status?.msg || 'Failed to load data source');
       }
     } catch (error) {
       console.error('Error loading data source:', error);
@@ -83,11 +70,11 @@ const DataSourceDetailPage: React.FC = () => {
         ownerId: '', // This would come from user context
       });
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success('Data source deleted successfully');
         history.push('/data-source');
       } else {
-        message.error(response.msg || 'Failed to delete data source');
+        message.error(response.status?.msg || 'Failed to delete data source');
       }
     } catch (error) {
       console.error('Error deleting data source:', error);
@@ -110,27 +97,26 @@ const DataSourceDetailPage: React.FC = () => {
 
       // In a real scenario, we'd have an update API
       // For now, we'll recreate the data source
-      const request: CreateDatasourceRequest = {
+      const request: API.CreateDatasourceRequest = {
         name: values.name,
-        description: values.description,
         type: values.type,
-        connectionInfo: {
+        dataSourceInfo: {
           endpoint: values.endpoint,
           username: values.username,
           database: values.database,
-          // Add other connection parameters as needed
+          description: values.description,
         },
         ownerId: '', // This would come from user context
       };
 
       const response = await DataSourceController.create(request);
 
-      if (response.code === 0) {
+      if (response.status?.code === 0) {
         message.success('Data source updated successfully');
         setEditing(false);
         loadDataSourceDetail(); // Reload the updated data
       } else {
-        message.error(response.msg || 'Failed to update data source');
+        message.error(response.status?.msg || 'Failed to update data source');
       }
     } catch (error) {
       console.error('Error saving data source:', error);
@@ -197,11 +183,11 @@ const DataSourceDetailPage: React.FC = () => {
             layout="vertical"
             initialValues={{
               name: dataSource?.name,
-              description: dataSource?.description,
+              description: dataSource?.info?.description,
               type: dataSource?.type,
-              endpoint: dataSource?.connectionInfo?.endpoint,
-              username: dataSource?.connectionInfo?.username,
-              database: dataSource?.connectionInfo?.database,
+              endpoint: dataSource?.info?.endpoint,
+              username: dataSource?.info?.username,
+              database: dataSource?.info?.database,
             }}
           >
             <Form.Item
@@ -259,19 +245,19 @@ const DataSourceDetailPage: React.FC = () => {
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Description" span={2}>
-              {dataSource?.description || 'No description provided'}
+              {dataSource?.info?.description || 'No description provided'}
             </Descriptions.Item>
             <Descriptions.Item label="Endpoint">
-              {dataSource?.connectionInfo?.endpoint || 'N/A'}
+              {dataSource?.info?.endpoint || 'N/A'}
             </Descriptions.Item>
             <Descriptions.Item label="Username">
-              {dataSource?.connectionInfo?.username || 'N/A'}
+              {dataSource?.info?.username || 'N/A'}
             </Descriptions.Item>
             <Descriptions.Item label="Database">
-              {dataSource?.connectionInfo?.database || 'N/A'}
+              {dataSource?.info?.database || 'N/A'}
             </Descriptions.Item>
-            <Descriptions.Item label="Created Time" span={2}>
-              {dataSource?.gmtCreate || 'N/A'}
+            <Descriptions.Item label="Status" span={2}>
+              {dataSource?.status || 'N/A'}
             </Descriptions.Item>
           </Descriptions>
         )}
@@ -299,7 +285,7 @@ const DataSourceDetailPage: React.FC = () => {
               {
                 title: 'Actions',
                 key: 'actions',
-                render: (_, record) => (
+                render: () => (
                   <Space>
                     <Button size="small" type="link">
                       View Details

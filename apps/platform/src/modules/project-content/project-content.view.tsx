@@ -55,7 +55,7 @@ export const ProjectContentComponent: React.FC = () => {
 };
 
 export class ProjectContentView extends Model {
-  pageTitle = PlatformConfigs.slogan || '科技护航数据安全  开源加速数据流通';
+  pageTitle = PlatformConfigs.slogan || '科技护航数据安全';
 
   homeLayoutService = getModel(HomeLayoutService);
 
