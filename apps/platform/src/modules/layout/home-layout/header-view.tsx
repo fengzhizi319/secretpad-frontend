@@ -46,19 +46,19 @@ type IAvatarMapping = Record<
 
 const avatarMapping: IAvatarMapping = {
   [Platform.CENTER]: {
-    onlineLink: 'https://secretflow-public.oss-cn-hangzhou.aliyuncs.com/center.png',
+    onlineLink: centerImgLink,
     localLink: centerImgLink,
     offlineLink: centerOfflineImgLink,
     localStorageKey: 'secretpad-center',
   },
   [Platform.EDGE]: {
-    onlineLink: 'https://secretflow-public.oss-cn-hangzhou.aliyuncs.com/edge.png',
+    onlineLink: edgeImgLink,
     localLink: edgeImgLink,
     offlineLink: edgeOfflineImgLink,
     localStorageKey: 'secretpad-edge',
   },
   [Platform.AUTONOMY]: {
-    onlineLink: 'https://secretflow-public.oss-cn-hangzhou.aliyuncs.com/autonomy.png',
+    onlineLink: edgeImgLink,
     // autonomy 和 edge 头像相同
     localLink: edgeImgLink,
     offlineLink: edgeOfflineImgLink,
@@ -268,17 +268,15 @@ export const HeaderComponent = () => {
           <>
             <span
               className={styles.community}
-              onClick={() =>
-                viewInstance.goto('https://github.com/orgs/secretflow/discussions')
-              }
+              onClick={() => viewInstance.goto('https://github.com/c-life')}
             >
               <GlobalOutlined />
-              隐语开源社区
+              c-life 开源社区
             </span>
             {/* <span className={styles.line} /> */}
             <span
               className={styles.help}
-              onClick={() => viewInstance.goto('https://www.secretflow.org.cn/docs')}
+              onClick={() => viewInstance.goto('https://www.c-life.com/docs')}
             >
               <ReadOutlined />
               帮助中心

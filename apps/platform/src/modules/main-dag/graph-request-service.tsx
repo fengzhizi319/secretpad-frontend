@@ -49,14 +49,12 @@ type IDagSuccessMapping = Record<
 // EDGE 不会有 dag 任务
 const dagSuccessTracertMapping: Omit<IDagSuccessMapping, 'EDGE'> = {
   [Platform.CENTER]: {
-    onlineLink:
-      'https://secretflow-public.oss-cn-hangzhou.aliyuncs.com/dag-success.png',
+    onlineLink: localDagSuccessLink,
     localLink: localDagSuccessLink,
     localStorageKey: 'dag-task_success',
   },
   [Platform.AUTONOMY]: {
-    onlineLink:
-      'https://secretflow-public.oss-cn-hangzhou.aliyuncs.com/autonomy_dag-success.png',
+    onlineLink: localDagSuccessLink,
     localLink: localDagSuccessLink,
     localStorageKey: 'autonomy_dag-success',
   },

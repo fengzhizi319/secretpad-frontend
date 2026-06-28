@@ -187,8 +187,7 @@ export const ManagedNodeListComponent = () => {
           <Button
             type="link"
             onClick={() => {
-              const url =
-                'https://www.secretflow.org.cn/zh-CN/docs/secretpad-all-in-one/center_deploy/platform_installation_guidelines_center';
+              const url = 'https://www.c-life.com/docs';
               const a = document.createElement('a');
               a.href = url;
               a.target = '_blank';

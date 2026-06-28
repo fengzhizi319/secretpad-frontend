@@ -27,10 +27,7 @@ export const HttpQueryExample = () => {
       </div>
       <div style={{ display: toggle ? 'block' : 'none' }}>
         <div style={{ marginTop: 16 }}>
-          <Typography.Link
-            href="https://www.secretflow.org.cn/zh-CN/docs/serving/0.3.1b0/reference/spi"
-            target="_blank"
-          >
+          <Typography.Link href="https://www.c-life.com/docs" target="_blank">
             点击查看官网文档
           </Typography.Link>
         </div>
