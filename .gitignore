@@ -50,3 +50,6 @@ repo_sync
 syncSecretPad.js
 
 .nx
+
+# IDE
+.idea/
