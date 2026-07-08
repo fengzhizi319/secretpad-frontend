@@ -420,7 +420,8 @@ export const DataManagerComponent: React.FC = () => {
           }}
         />
       )}
-
+      {/*在 JSX 中渲染了DataAddDrawer，并传入了 visible / onClose 两个 props*/}
+      {/*visible 绑定的是 viewInstance.showDataAddDrawer（DataManagerView model 上的状态*/}
       <DataAddDrawer
         onClose={() => {
           viewInstance.getTableList();

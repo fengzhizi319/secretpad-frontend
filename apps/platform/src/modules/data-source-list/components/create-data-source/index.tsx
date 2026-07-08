@@ -1,3 +1,37 @@
+/**
+ * ==============================================================================
+ * 创建/注册数据源弹窗组件
+ * ==============================================================================
+ *
+ * 文件位置：secretpad/frontend-src/apps/platform/src/modules/data-source-list/components/create-data-source/index.tsx
+ *
+ * 作用：
+ *   该组件提供 SecretPad 平台“注册数据源”的 UI 入口。用户在数据管理页面
+ *   点击“注册数据源”后，会弹出一个 Drawer 抽屉，让用户选择数据源类型
+ *   （OSS / ODPS / MYSQL 等），填写连接信息，并选择要注册到的节点。
+ *
+ * 核心流程：
+ *   1. 用户选择数据源类型并填写表单（endpoint、ak/sk、bucket 等）。
+ *   2. 用户选择目标节点（AUTONOMY/P2P 模式可添加多个节点，其他模式仅当前节点）。
+ *   3. 点击“提交”后，调用 DataSourceService.addDataSource()。
+ *   4. DataSourceService 将表单数据转换为后端要求的 CreateDatasourceRequest，
+ *      最终调用后端接口 POST /api/v1alpha1/datasource/create。
+ *   5. 后端收到请求后，会按数据源类型分发给对应的 DatasourceHandler，
+ *      并通过 gRPC 调用 Kuscia 创建 DomainDataSource CR。
+ *
+ * 与后端的对应关系：
+ *   - 前端 Controller: DataSourceController.create
+ *   - 后端 Service:    DatasourceServiceImpl.createDatasource
+ *   - OSS 处理器:      OssKusciaControlDatasourceHandler
+ *   - Kuscia 接口:     DomainDataSourceService.CreateDomainDataSource (gRPC :8083)
+ *
+ * 注意：
+ *   - HTTP 类型在界面上已被注释，当前版本未启用。
+ *   - ODPS 类型名称会自动加上 "ODPS-" 前缀。
+ *   - AUTONOMY（自治/P2P）模式下支持向多个节点注册，最多 5 个。
+ * ==============================================================================
+ */
+
 import {
   DeleteOutlined,
   ExclamationCircleOutlined,
@@ -19,7 +53,7 @@ import {
   notification,
 } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'umi';
+import { useSearchParams } from 'umi';
 
 import { hasAccess, Platform } from '@/components/platform-wrapper';
 import {
@@ -31,34 +65,96 @@ import { useModel } from '@/util/valtio-helper';
 
 import styles from './index.less';
 
+/**
+ * CreateDataSourceModal
+ * ------------------------------------------------------------------------------
+ * props:
+ *   - visible:  控制 Drawer 是否显示
+ *   - onClose:  关闭抽屉的回调（通常由父组件控制 visible 状态并刷新列表）
+ *
+ * 内部使用 Valtio 状态管理：
+ *   - dataSourceService: 封装数据源相关的 API 调用与节点列表状态。
+ *   - nodeService:       获取当前节点信息，用于非 AUTONOMY 模式默认选中当前节点。
+ */
 export const CreateDataSourceModal: React.FC<{
   onClose: () => void;
   visible: boolean;
 }> = ({ visible, onClose }) => {
+  // 通过 Valtio 获取数据源服务实例，负责调用 addDataSource / queryAutonomyNodeList
   const dataSourceService = useModel(DataSourceService);
+  // 通过 Valtio 获取节点服务实例，用于读取 currentNode（当前登录节点）
   const nodeService = useModel(NodeService);
+
+  // 从 URL 查询参数中读取 ownerId，表示当前数据源的归属节点/项目所有者
   const [searchParams] = useSearchParams();
   const ownerId = searchParams.get('ownerId');
 
+  // Ant Design 通知 API，用于 AUTONOMY 模式下展示“部分节点创建失败”的详情
   const [notificationApi, contextHolder] = notification.useNotification();
 
+  // Ant Design Form 实例，用于表单校验、取值、重置
   const [form] = Form.useForm();
+  // 实时监听整个表单值变化，用于控制“提交”按钮的禁用状态
   const values = Form.useWatch([], form);
+  // 实时监听 nodeIds 字段变化，用于在节点下拉框中禁用已选节点
   const nodeIdsValue = Form.useWatch('nodeIds', form);
+  // 提交按钮是否禁用：当表单校验未通过时置为 true
   const [disabled, setDisabled] = useState(true);
   // const [nodeStatus, setNodeStatus] = useState('pending');
 
+  /**
+   * closeHandler
+   * ------------------------------------------------------------------------------
+   * 关闭抽屉并重置表单。
+   * 注意：这里只重置表单字段，不会清空 dataSourceService.nodeOptions，
+   * 因为节点列表在下次打开时会重新加载或复用。
+   */
   const closeHandler = () => {
     onClose();
     form.resetFields();
   };
 
+  /**
+   * handleOk
+   * ------------------------------------------------------------------------------
+   * 点击“提交”按钮后的处理函数，核心注册逻辑入口。
+   *
+   * 执行步骤：
+   *   1. 调用 form.validateFields() 进行表单校验。
+   *   2. 如果是 ODPS 类型，自动在 name 前拼接 "ODPS-" 前缀（产品约定）。
+   *   3. 调用 dataSourceService.addDataSource({ ...value, ownerId })。
+   *   4. 如果后端返回 status.code === 0：
+   *        - 普通模式：提示“注册成功”并关闭抽屉。
+   *        - AUTONOMY 模式：检查 data.failedCreatedNodes，若存在失败节点，
+   *          用 notification 展示每个失败节点及其错误信息，再关闭抽屉。
+   *   5. 如果失败：提示错误信息并关闭抽屉。
+   *
+   * 向后端传递的数据结构（API.CreateDatasourceRequest）大致如下：
+   *   {
+   *     type: 'OSS' | 'ODPS' | 'MYSQL',
+   *     name: string,
+   *     dataSourceInfo: {
+   *       endpoint: string,
+   *       ak?: string,
+   *       sk?: string,
+   *       bucket?: string,
+   *       prefix?: string,
+   *       virtualhost?: boolean,
+   *       // ODPS: project, accessId, accessKey
+   *       // MYSQL: user, password, database
+   *     },
+   *     nodeIds: [{ nodeId: string }, ...], // 提交前会被 service 提取为 string[]
+   *     ownerId: string
+   *   }
+   */
   const handleOk = async () => {
     await form.validateFields().then(async (value) => {
+      // ODPS 数据源名称自动加前缀，便于列表中区分数据源类型
       if (value.type === DataSourceType.ODPS) {
         value.name = 'ODPS-' + value.name;
       }
 
+      // 调用 DataSourceService.addDataSource，最终发起 POST /api/v1alpha1/datasource/create
       const { status, data } = await dataSourceService.addDataSource({
         ...value,
         ownerId: ownerId,
@@ -66,7 +162,7 @@ export const CreateDataSourceModal: React.FC<{
       if (status && status.code === 0) {
         message.success(`「${value.name}」注册成功」`);
         if (isAutonomyMode) {
-          // 部分节点创建成功
+          // AUTONOMY 模式下可能同时向多个节点注册，需要处理部分失败场景
           const errorNodesObj = data?.failedCreatedNodes || {};
           const errorNodeList = Object.keys(errorNodesObj).map((id) => ({
             nodeId: id,
@@ -102,12 +198,29 @@ export const CreateDataSourceModal: React.FC<{
     });
   };
 
+  /**
+   * getNodeList
+   * ------------------------------------------------------------------------------
+   * AUTONOMY 模式下调用，获取所有可用节点列表。
+   * 实际逻辑在 DataSourceService.queryAutonomyNodeList 中：
+   *   - 调用 InstController.listNode() 拉取节点列表。
+   *   - 过滤出 nodeStatus === NodeState.READY 的节点。
+   *   - 将结果写入 dataSourceService.nodeOptions，供下拉框使用。
+   */
   const getNodeList = useCallback(async () => {
     await dataSourceService.queryAutonomyNodeList();
   }, []);
 
+  // 判断当前平台是否为 AUTONOMY（自治/P2P）模式，决定节点选择策略
   const isAutonomyMode = hasAccess({ type: [Platform.AUTONOMY] });
 
+  /**
+   * useEffect 1：根据表单校验状态控制“提交”按钮
+   * ------------------------------------------------------------------------------
+   * 当 visible 打开且表单值发生变化时，进行仅校验（validateOnly: true）。
+   * 校验通过则启用提交按钮，否则禁用。
+   * 这样可以实现实时按钮状态联动，而不触发错误提示。
+   */
   useEffect(() => {
     if (visible) {
       form.validateFields({ validateOnly: true }).then(
@@ -121,6 +234,17 @@ export const CreateDataSourceModal: React.FC<{
     }
   }, [values, visible]);
 
+  /**
+   * useEffect 2：打开弹窗时初始化节点选项
+   * ------------------------------------------------------------------------------
+   * AUTONOMY 模式：
+   *   - 从服务端拉取全部可用节点列表，用户可动态添加/删除节点。
+   * 其他模式（CENTER / EDGE 等）：
+   *   - 节点下拉框仅允许选择当前节点（nodeService.currentNode）。
+   *
+   * 注意：代码中存在两段完全相同的 useEffect，可能是历史遗留或冗余，
+   * 实际效果相同，都会按 visible 变化执行。
+   */
   useEffect(() => {
     if (visible) {
       // p2p 模式下有多个节点，其他模式下只允许当前节点
@@ -186,6 +310,16 @@ export const CreateDataSourceModal: React.FC<{
   //   ),
   // };
 
+  /**
+   * nodeOptionsFilter
+   * ------------------------------------------------------------------------------
+   * 根据当前已选择的节点（nodeIdsValue）对下拉选项进行过滤，
+   * 已选中的节点会被 disabled，避免重复选择同一节点。
+   *
+   * nodeIds 的表单结构是数组：
+   *   nodeIds: [{ nodeId: 'alice' }, { nodeId: 'bob' }]
+   * 每一项对应 Form.List 中的一个动态表单项。
+   */
   const nodeOptionsFilter = dataSourceService.nodeOptions.map((item) => {
     if (
       (nodeIdsValue || []).some(
@@ -204,6 +338,29 @@ export const CreateDataSourceModal: React.FC<{
     }
   });
 
+  /**
+   * JSX 渲染
+   * ------------------------------------------------------------------------------
+   * 整体结构：
+   *   <notification contextHolder>
+   *     <Drawer 抽屉>
+   *       <Form 表单>
+   *         - 数据源类型选择（Radio.Group）
+   *         - 根据 type 动态渲染不同连接信息表单项
+   *         - 节点连接配置（Form.List 动态增减）
+   *       </Form>
+   *     </Drawer>
+   *   </>
+   *
+   * 表单字段命名约定：
+   *   - type:        数据源类型（DataSourceType）
+   *   - name:        显示名称（ODPS 会自动加前缀）
+   *   - dataSourceInfo: 各类型连接信息对象
+   *       * OSS:   endpoint, ak, sk, virtualhost, bucket, prefix
+   *       * MYSQL: endpoint, user, password, database
+   *       * ODPS:  project, endpoint, accessId, accessKey
+   *   - nodeIds:     节点数组 [{ nodeId }]
+   */
   return (
     <>
       {contextHolder}
@@ -230,6 +387,13 @@ export const CreateDataSourceModal: React.FC<{
           requiredMark="optional"
           className={styles.manualColInfo}
         >
+          {/*
+            数据源类型选择
+            ----------------------------------------------------------------------
+            当前支持：OSS、ODPS、MYSQL。
+            HTTP 类型已注释，未启用。
+            initialValue 默认为 OSS。
+          */}
           <Form.Item
             name="type"
             label="数据源类型"
@@ -268,10 +432,27 @@ export const CreateDataSourceModal: React.FC<{
               </Radio>
             </Radio.Group>
           </Form.Item>
+
+          {/*
+            根据 type 动态渲染连接信息表单
+            ----------------------------------------------------------------------
+            使用 Form.Item dependencies={['type']} + render props 模式。
+            当 type 字段变化时，会根据当前值重新渲染对应类型的表单项。
+          */}
           <Form.Item dependencies={['type']} noStyle>
             {({ getFieldValue }) => {
               return getFieldValue('type') === DataSourceType.OSS ? (
                 <>
+                  {/*
+                    OSS 数据源连接信息
+                    ------------------------------------------------------------------
+                    name:        用户自定义显示名称
+                    endpoint:    OSS endpoint，如 oss-cn-hangzhou.aliyuncs.com
+                    ak / sk:     AccessKey ID / Secret
+                    virtualhost: 是否使用 virtual hosted-style 访问
+                    bucket:      OSS bucket 名称
+                    prefix:      预设路径前缀（可选）
+                  */}
                   <Form.Item
                     label="显示名称"
                     name={'name'}
@@ -344,6 +525,11 @@ export const CreateDataSourceModal: React.FC<{
                   </Form.Item>
                 </>
               ) : getFieldValue('type') === DataSourceType.HTTP ? (
+                /*
+                  HTTP 数据源（当前未启用）
+                  ------------------------------------------------------------------
+                  该分支在界面上已被注释，仅保留代码结构作为扩展入口。
+                */
                 <Form.Item
                   label="显示名称"
                   name={['dataSourceInfo', 'name']}
@@ -360,6 +546,19 @@ export const CreateDataSourceModal: React.FC<{
                 </Form.Item>
               ) : getFieldValue('type') === DataSourceType.MYSQL ? (
                 <>
+                  {/*
+                    MYSQL 数据源连接信息
+                    ------------------------------------------------------------------
+                    注意：当前 MYSQL 数据源暂不支持模型训练、特征处理类组件，
+                    因此顶部增加 Alert 提示。
+
+                    name:     显示名称
+                    endpoint: 数据库地址，表单输入 [hostname|ip]:port，
+                              前端会拼接前缀 jdbc:mysql://
+                    user:     数据库用户名
+                    password: 数据库密码
+                    database: 数据库名
+                  */}
                   <Alert
                     message="MYSQL 数据暂不支持使用模型训练、特征处理类型组件"
                     type="info"
@@ -426,6 +625,16 @@ export const CreateDataSourceModal: React.FC<{
                 </>
               ) : (
                 <>
+                  {/*
+                    ODPS 数据源连接信息
+                    ------------------------------------------------------------------
+                    project:   ODPS Project 名称
+                    name:      显示名称，输入框带 addonBefore={'ODPS-'}
+                               提交时 handleOk 会自动再补一次 "ODPS-" 前缀
+                    endpoint:  ODPS endpoint
+                    accessId:  阿里云 AccessKey ID
+                    accessKey: 阿里云 AccessKey Secret
+                  */}
                   <Form.Item
                     label="ODPS Project名称"
                     name={['dataSourceInfo', 'project']}
@@ -490,6 +699,21 @@ export const CreateDataSourceModal: React.FC<{
               );
             }}
           </Form.Item>
+
+          {/*
+            节点连接配置
+            ------------------------------------------------------------------------------
+            使用 Form.List 实现动态节点选择：
+              - AUTONOMY 模式：initialValue=[{}]，只给一个空对象，用户可以点击
+                “添加节点连接配置”最多增加到 5 个节点。
+              - 其他模式：initialValue=[{ nodeId: currentNode.nodeId }]，
+                默认选中当前节点且不可删除。
+
+            每个节点表单项：
+              - 展示“节点: N”序号
+              - 下拉框选择 nodeId（已选节点禁用）
+              - 当 fields.length > 1 时显示删除按钮
+          */}
           <div className={styles.nodeTitle}>节点连接配置</div>
           <Form.List
             name="nodeIds"
