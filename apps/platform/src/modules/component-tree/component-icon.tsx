@@ -5,6 +5,7 @@ import {
   FundFilled,
   LayoutFilled,
   PieChartFilled,
+  SafetyOutlined,
 } from '@ant-design/icons';
 
 export const ComponentIcons: Record<string, React.ReactElement> = {
@@ -15,4 +16,5 @@ export const ComponentIcons: Record<string, React.ReactElement> = {
   control: <CodeFilled style={{ color: '#A1AABC' }} />,
   'ml.train': <BulbFilled style={{ color: '#A1AABC' }} />,
   'ml.eval': <FundFilled style={{ color: '#A1AABC' }} />,
+  privacy: <SafetyOutlined style={{ color: '#A1AABC' }} />,
 };

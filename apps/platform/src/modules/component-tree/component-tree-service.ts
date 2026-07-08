@@ -134,6 +134,7 @@ export class DefaultComponentTreeService extends Model {
       postprocessing: '特征处理',
       read_data: '数据准备',
       data_prep: '数据准备',
+      privacy: '差分数据处理',
     };
     const list = this.componentList[mode].reduce<ComponentTreeItem[]>(
       (acc, component) => {
@@ -181,6 +182,7 @@ export class DefaultComponentTreeService extends Model {
       '数据准备',
       'data_filter',
       '特征处理',
+      'privacy',
       'stats',
       'ml.train',
       'ml.predict',
