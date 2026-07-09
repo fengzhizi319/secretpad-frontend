@@ -58,7 +58,8 @@ export const PipelineCreationComponent = () => {
       key === PipelineTemplateType.PSI ||
       key === PipelineTemplateType.RISK ||
       key === PipelineTemplateType.TEE ||
-      key === PipelineTemplateType.PSI_TEE
+      key === PipelineTemplateType.PSI_TEE ||
+      key === PipelineTemplateType.DIFFERENTIAL_PRIVACY
     ) {
       message.success({
         content: <QuickConfigEntry type={key} />,

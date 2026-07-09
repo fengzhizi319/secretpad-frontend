@@ -1,4 +1,9 @@
-import { CopyOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  SafetyOutlined,
+} from '@ant-design/icons';
 
 import { ReactComponent as Blank } from '@/assets/template_type_blank.svg';
 import { ReactComponent as Psi } from '@/assets/template_type_psi.svg';
@@ -13,6 +18,8 @@ export enum PipelineTemplateType {
   PSI_GUIDE = 'psi-guide',
   TEE = 'TEE', // Tee
   TEE_GUIDE = 'tee-guide', // Tee guide
+  DIFFERENTIAL_PRIVACY = 'differential-privacy', // 差分隐私
+  DIFFERENTIAL_PRIVACY_GUIDE = 'differential-privacy-guide', // 差分隐私引导
 }
 
 export type Pipeline = {
@@ -66,4 +73,12 @@ export const TemplateIcon = {
   [PipelineTemplateType.BLANK]: Blank,
   [PipelineTemplateType.RISK]: Psi,
   [PipelineTemplateType.PSI]: Psi,
+  [PipelineTemplateType.PSI_TEE]: Psi,
+  [PipelineTemplateType.PSI_TEE_GUIDE]: Psi,
+  [PipelineTemplateType.RISK_GUIDE]: Psi,
+  [PipelineTemplateType.PSI_GUIDE]: Psi,
+  [PipelineTemplateType.TEE]: Blank,
+  [PipelineTemplateType.TEE_GUIDE]: Blank,
+  [PipelineTemplateType.DIFFERENTIAL_PRIVACY]: SafetyOutlined,
+  [PipelineTemplateType.DIFFERENTIAL_PRIVACY_GUIDE]: SafetyOutlined,
 };

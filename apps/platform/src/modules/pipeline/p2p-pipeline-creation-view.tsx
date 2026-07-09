@@ -25,6 +25,7 @@ const order = [
   PipelineTemplateType.BLANK,
   PipelineTemplateType.RISK,
   PipelineTemplateType.PSI,
+  PipelineTemplateType.DIFFERENTIAL_PRIVACY,
 ];
 
 const P2PCreatePipelineModal = ({ visible, data, close }: ICreatePipelineModal) => {
