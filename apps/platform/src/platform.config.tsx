@@ -13,7 +13,19 @@ if (hour < 12) {
 export default {
   theme: {
     token: {
-      colorPrimary: '#0068fa',
+      // 与 docs/front-end/prototype 高保真原型保持一致的设计系统
+      colorPrimary: '#1677ff',
+      colorSuccess: '#52c41a',
+      colorWarning: '#faad14',
+      colorError: '#f5222d',
+      colorInfo: '#1677ff',
+      colorText: 'rgba(0, 0, 0, 0.88)',
+      colorTextSecondary: 'rgba(0, 0, 0, 0.45)',
+      colorBorder: '#d9d9d9',
+      borderRadius: 6,
+      fontSize: 14,
+      fontFamily:
+        '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif',
     },
   },
   slogan: '科技护航数据安全', // 全局标语

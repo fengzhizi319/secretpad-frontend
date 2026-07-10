@@ -19,7 +19,7 @@ export const HttpQueryExample = () => {
             <DownOutlined
               style={{
                 transform: toggle ? `rotate(180deg)` : `rotate(0)`,
-                color: '#0068fa',
+                color: '#1677ff',
               }}
             />
           </Space>

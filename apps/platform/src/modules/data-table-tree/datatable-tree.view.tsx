@@ -186,7 +186,7 @@ export const DatatableTreeComponent = () => {
                           }}
                           style={{
                             fontSize: 12,
-                            color: '#0068fa',
+                            color: '#1677ff',
                           }}
                         >
                           去节点中心添加
@@ -207,7 +207,7 @@ export const DatatableTreeComponent = () => {
                           }}
                           style={{
                             fontSize: 12,
-                            color: '#0068fa',
+                            color: '#1677ff',
                           }}
                         >
                           去数据管理添加
