@@ -1,0 +1,138 @@
+.dashboard {
+  padding: 8px 4px 24px;
+}
+
+.pageTitle {
+  margin-bottom: 24px;
+  color: var(--sp-text-main);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.statRow {
+  margin-bottom: 20px;
+}
+
+.statCard {
+  border-radius: 20px;
+  box-shadow: var(--sp-shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: var(--sp-shadow-md);
+    transform: translateY(-2px);
+  }
+
+  :global(.ant-card-body) {
+    padding: 24px;
+  }
+}
+
+.statIcon {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: rgb(0 113 227 / 8%);
+  color: var(--sp-primary);
+  font-size: 22px;
+}
+
+.statLabel {
+  margin-bottom: 6px;
+  color: var(--sp-text-secondary);
+  font-size: 13px;
+}
+
+.statValue {
+  margin-bottom: 8px;
+  color: var(--sp-text-main);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.statTrend {
+  color: var(--sp-text-secondary);
+  font-size: 13px;
+}
+
+.listCard,
+.healthCard {
+  border-radius: 20px;
+  box-shadow: var(--sp-shadow-sm);
+
+  :global(.ant-card-head) {
+    padding: 0 24px;
+    border-bottom: 1px solid var(--sp-border);
+    font-weight: 600;
+  }
+
+  :global(.ant-card-body) {
+    padding: 20px 24px;
+  }
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sp-border);
+  color: var(--sp-text-main);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.listMeta {
+  color: var(--sp-text-secondary);
+  font-size: 13px;
+}
+
+.empty {
+  padding: 32px 0;
+  color: var(--sp-text-secondary);
+  text-align: center;
+}
+
+.healthRow {
+  margin-top: 20px;
+}
+
+.healthItem {
+  .healthHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: var(--sp-text-main);
+    font-size: 14px;
+  }
+
+  .normal {
+    color: var(--sp-primary);
+  }
+
+  .warning {
+    color: var(--sp-warning);
+  }
+
+  .success {
+    color: var(--sp-success);
+  }
+
+  :global(.ant-progress-bg) {
+    height: 6px !important;
+    border-radius: 3px !important;
+  }
+
+  :global(.ant-progress-inner) {
+    border-radius: 3px;
+    background-color: rgb(0 0 0 / 6%);
+  }
+}

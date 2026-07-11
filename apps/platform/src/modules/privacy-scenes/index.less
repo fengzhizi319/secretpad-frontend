@@ -1,0 +1,67 @@
+.privacyScenes {
+  padding: 8px 4px 24px;
+}
+
+.pageTitle {
+  margin-bottom: 24px;
+  color: var(--sp-text-main);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.sceneGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.sceneCard {
+  border-radius: 20px;
+  box-shadow: var(--sp-shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: var(--sp-shadow-md);
+    transform: translateY(-2px);
+  }
+
+  :global(.ant-card-body) {
+    padding: 24px;
+  }
+}
+
+.sceneHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.sceneIcon {
+  color: var(--sp-primary);
+  font-size: 20px;
+}
+
+.sceneTitle {
+  flex: 1;
+  color: var(--sp-text-main);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.sceneDesc {
+  margin-bottom: 20px;
+  color: var(--sp-text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sceneActions {
+  display: flex;
+  gap: 12px;
+
+  :global(.ant-btn) {
+    border-radius: 8px;
+  }
+}
