@@ -34,100 +34,92 @@ export const ResultManagerComponent = () => {
   const { ownerId } = parse(window.location.search);
 
   const renderButtons = (record: API.NodeResultsVO) => {
-    if (record.datatableType === 'report') {
-      return '-';
-    } else if (isAutonomy) {
-      return (
-        <Space>
-          {/* 暂时注释 */}
-          {/* {record.datatableType === 'report' && (
-            <Popconfirm
-              title="确定要复制到数据管理吗？"
-              onConfirm={() => viewInstance.copy(record)}
-              okText="复制"
-              cancelText="取消"
-            >
-              <Button type="link" style={{ paddingLeft: 0 }}>
-                复制
-              </Button>
-            </Popconfirm>
-          )} */}
-          <Tooltip
-            title={
-              record?.datasourceType === DataSourceType.OSS ||
-              record?.datasourceType === DataSourceType.ODPS ||
-              record?.datasourceType === DataSourceType.MYSQL
-                ? getDownloadBtnTitle(record?.datasourceType, record.relativeUri)
-                : ''
-            }
-          >
-            <Button
-              type="link"
-              style={{ paddingLeft: 0 }}
-              onClick={() => viewInstance.download(record, isAutonomy)}
-              disabled={
-                record?.datasourceType === DataSourceType.OSS ||
-                record?.datasourceType === DataSourceType.ODPS ||
-                record?.datasourceType === DataSourceType.MYSQL
-              }
-            >
-              下载
-            </Button>
-          </Tooltip>
-          {/* <Button
-            type="link"
-            style={{ paddingLeft: 0 }}
-            onClick={() => viewInstance.delete(record)}
-          >
-            删除
-          </Button> */}
-        </Space>
-      );
-    } else if (
-      record?.pullFromTeeStatus === ResultTableState.SUCCESS ||
-      record?.pullFromTeeStatus === ''
-    ) {
-      return (
-        <Tooltip
-          title={
-            record?.datasourceType === DataSourceType.OSS ||
-            record?.datasourceType === DataSourceType.ODPS ||
-            record?.datasourceType === DataSourceType.MYSQL
-              ? getDownloadBtnTitle(record?.datasourceType, record.relativeUri)
-              : ''
-          }
-        >
-          <Button
-            type="link"
-            style={{ paddingLeft: 0 }}
-            onClick={() => viewInstance.download(record, isAutonomy)}
-            disabled={
-              record?.datasourceType === DataSourceType.OSS ||
-              record?.datasourceType === DataSourceType.ODPS ||
-              record?.datasourceType === DataSourceType.MYSQL
-            }
-          >
-            下载
-          </Button>
-        </Tooltip>
-      );
-    } else if (record?.pullFromTeeStatus === ResultTableState.FAILED) {
-      return (
+    const nodeId = isAutonomy ? record?.nodeId : (ownerId as string);
+
+    const downloadButton = (
+      <Tooltip
+        title={
+          record?.datasourceType === DataSourceType.OSS ||
+          record?.datasourceType === DataSourceType.ODPS ||
+          record?.datasourceType === DataSourceType.MYSQL
+            ? getDownloadBtnTitle(record?.datasourceType, record.relativeUri)
+            : ''
+        }
+      >
         <Button
           type="link"
           style={{ paddingLeft: 0 }}
           onClick={() => viewInstance.download(record, isAutonomy)}
+          disabled={
+            record?.datasourceType === DataSourceType.OSS ||
+            record?.datasourceType === DataSourceType.ODPS ||
+            record?.datasourceType === DataSourceType.MYSQL
+          }
         >
-          重新获取
+          下载
         </Button>
+      </Tooltip>
+    );
+
+    const detailButton = (
+      <Button
+        type="link"
+        style={{ paddingLeft: 0 }}
+        onClick={() =>
+          viewInstance.showDrawer(
+            `「${record.productName || record.domainDataId}」详情`,
+            record.domainDataId as string,
+            (record?.computeMode || 'MPC') as ComputeMode,
+            nodeId,
+          )
+        }
+      >
+        详情
+      </Button>
+    );
+
+    // 报告类型直接提供 详情 + 下载，不依赖 TEE 拉取状态
+    if (record.datatableType === 'report') {
+      return (
+        <Space>
+          {detailButton}
+          {downloadButton}
+        </Space>
       );
-    } else if (record?.pullFromTeeStatus === ResultTableState.RUNNING) {
+    }
+
+    // TEE 模式下正在拉取的结果
+    if (record?.pullFromTeeStatus === ResultTableState.RUNNING) {
       return (
         <Button type="link" disabled>
           -
         </Button>
       );
     }
+
+    // TEE 模式下拉取失败显示重新获取
+    if (record?.pullFromTeeStatus === ResultTableState.FAILED) {
+      return (
+        <Space>
+          {detailButton}
+          <Button
+            type="link"
+            style={{ paddingLeft: 0 }}
+            onClick={() => viewInstance.download(record, isAutonomy)}
+          >
+            重新获取
+          </Button>
+        </Space>
+      );
+    }
+
+    // MPC / TEE 拉取成功：详情 + 下载
+    return (
+      <Space>
+        {detailButton}
+        {downloadButton}
+      </Space>
+    );
   };
 
   const columnsNodeNameFilter = viewInstance.resultManagerService.autonomyNodeList

@@ -11,6 +11,8 @@ import {
   Badge,
   Tooltip,
   message,
+  Alert,
+  Tag,
 } from 'antd';
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
@@ -53,11 +55,37 @@ export const ResultDetailsDrawer: React.FC = () => {
     visible && viewInstance.getResultDetail(data?.id, data?.nodeId);
   }, [data?.id, visible]);
 
+  const tableColumnList = viewInstance.resultDetail.tableColumnVOList || [];
+
+  const isDataClassificationTable = React.useMemo(
+    () => tableColumnList.some((col) => col.colName === '__final_level__'),
+    [tableColumnList],
+  );
+
+  const getClassificationColumnExtra = (colName: string) => {
+    if (colName === '__final_level__') {
+      return <Tag color="red">敏感等级 L1~L5</Tag>;
+    }
+    if (colName === '__needs_review__') {
+      return <Tag color="orange">需人工复核</Tag>;
+    }
+    if (colName === '__tags_json__') {
+      return <Tag color="blue">命中标签 JSON</Tag>;
+    }
+    return null;
+  };
+
   const tableColumns = [
     {
       title: '字段名称',
       dataIndex: 'colName',
       key: 'colName',
+      render: (text: string) => (
+        <Space>
+          {text}
+          {isDataClassificationTable && getClassificationColumnExtra(text)}
+        </Space>
+      ),
     },
     {
       title: '类型',
@@ -97,36 +125,38 @@ export const ResultDetailsDrawer: React.FC = () => {
       open={visible}
       onClose={close}
       footer={
-        nodeResultsVO?.datatableType !== 'report' && data?.nodeId !== 'tee' ? (
-          <div className={style.actions}>
-            {(nodeResultsVO?.pullFromTeeStatus === ResultTableState.SUCCESS ||
-              nodeResultsVO?.pullFromTeeStatus === '') && (
-              <Tooltip
-                title={
+        <div className={style.actions}>
+          {/* 报告/表类型均可下载 */}
+          {(nodeResultsVO?.datatableType === 'report' ||
+            nodeResultsVO?.pullFromTeeStatus === ResultTableState.SUCCESS ||
+            nodeResultsVO?.pullFromTeeStatus === '') && (
+            <Tooltip
+              title={
+                nodeResultsVO?.datasourceType === DataSourceType.OSS ||
+                nodeResultsVO?.datasourceType === DataSourceType.ODPS ||
+                nodeResultsVO?.datasourceType === DataSourceType.MYSQL
+                  ? getDownloadBtnTitle(
+                      nodeResultsVO?.datasourceType,
+                      nodeResultsVO?.relativeUri,
+                    )
+                  : ''
+              }
+            >
+              <Button
+                type="primary"
+                disabled={
                   nodeResultsVO?.datasourceType === DataSourceType.OSS ||
                   nodeResultsVO?.datasourceType === DataSourceType.ODPS ||
                   nodeResultsVO?.datasourceType === DataSourceType.MYSQL
-                    ? getDownloadBtnTitle(
-                        nodeResultsVO?.datasourceType,
-                        nodeResultsVO?.relativeUri,
-                      )
-                    : ''
                 }
+                onClick={() => viewInstance.download(data?.nodeId)}
               >
-                <Button
-                  type="primary"
-                  disabled={
-                    nodeResultsVO?.datasourceType === DataSourceType.OSS ||
-                    nodeResultsVO?.datasourceType === DataSourceType.ODPS ||
-                    nodeResultsVO?.datasourceType === DataSourceType.MYSQL
-                  }
-                  onClick={() => viewInstance.download(data?.nodeId)}
-                >
-                  下载结果
-                </Button>
-              </Tooltip>
-            )}
-            {nodeResultsVO.pullFromTeeStatus === ResultTableState.FAILED && (
+                下载结果
+              </Button>
+            </Tooltip>
+          )}
+          {nodeResultsVO?.datatableType !== 'report' &&
+            nodeResultsVO.pullFromTeeStatus === ResultTableState.FAILED && (
               <Tooltip
                 title={
                   nodeResultsVO?.datasourceType === DataSourceType.OSS ||
@@ -147,10 +177,7 @@ export const ResultDetailsDrawer: React.FC = () => {
                 </Button>
               </Tooltip>
             )}
-          </div>
-        ) : (
-          false
-        )
+        </div>
       }
       mask={false}
     >
@@ -261,11 +288,20 @@ export const ResultDetailsDrawer: React.FC = () => {
                           </Space>
                         )}
                       </div>
+                      {isDataClassificationTable && !isFullscreen && (
+                        <Alert
+                          message="数据分类分级结果表"
+                          description="该表由隐私/数据分类分级组件生成，额外包含 __final_level__（行最终敏感等级）、__needs_review__（是否需要人工复核）、__tags_json__（命中标签集合）三个系统字段。"
+                          type="info"
+                          showIcon
+                          style={{ marginBottom: 12 }}
+                        />
+                      )}
                       <Table
                         className={classNames({
                           [style.fullScreenContentWrap]: isFullscreen,
                         })}
-                        dataSource={viewInstance.resultDetail.tableColumnVOList || []}
+                        dataSource={tableColumnList}
                         columns={tableColumns}
                         rowKey={(record) => record.colName as string}
                       />
