@@ -106,11 +106,49 @@
 }
 
 .brandTitle {
-  margin-bottom: 8px;
-  color: var(--sp-text-main);
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
+  position: relative;
+  margin-bottom: 10px;
+  animation: shimmer 4s ease-in-out infinite;
+  background: linear-gradient(
+    120deg,
+    #0071e3 0%,
+    #5e5ce6 35%,
+    #bf5af2 70%,
+    #0071e3 100%
+  );
+  background-clip: text;
+  background-size: 250% 250%;
+  filter: drop-shadow(0 2px 8px rgb(0 113 227 / 22%));
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  -webkit-text-fill-color: transparent;
+}
+
+.brandTitle::after {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 48px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #0071e3, #bf5af2);
+  content: '';
+  transform: translateX(-50%);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .brandSlogan {

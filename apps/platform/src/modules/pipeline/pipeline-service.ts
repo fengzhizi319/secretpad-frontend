@@ -15,16 +15,16 @@ import {
 import { CommandRegistry } from '@/util/command';
 import { Model, getModel } from '@/util/valtio-helper';
 
+import { DagLayoutView } from '../layout/dag-layout';
 import { HeaderProjectListView } from '../layout/header-project-list/project-list.view';
 import { ProjectStatus } from '../p2p-project-list/components/common';
 
 import type { Pipeline } from './pipeline-protocol';
 import type { PipelineTemplateContribution } from './pipeline-protocol';
-import { PipelineTemplateType } from './pipeline-protocol';
 import { PipelineCommands } from './pipeline-protocol';
+import { PipelineTemplateType } from './pipeline-protocol';
 
 import { getPipelineTemplates } from '.';
-import { DagLayoutView } from '../layout/dag-layout';
 
 const CUSTOM_COMPONENT = {
   BinningModification: 'feature/binning_modifications',
@@ -212,6 +212,7 @@ export class DefaultPipelineService extends Model {
     name: string,
     templateType: PipelineTemplateType,
     projectIdParam?: string,
+    quickConfigs?: unknown,
   ) {
     const { search } = window.location;
     const projectId = projectIdParam || (parse(search).projectId as string);
@@ -230,7 +231,7 @@ export class DefaultPipelineService extends Model {
     }
     const { graphId: id } = data || {};
     if (!id) throw new Error(createStatus?.msg || '创建训练流失败');
-    const { nodes, edges } = content(id);
+    const { nodes, edges } = content(id, quickConfigs);
     const { status } = await fullUpdateGraph({
       projectId,
       graphId: id,

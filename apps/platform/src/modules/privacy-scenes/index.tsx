@@ -12,7 +12,7 @@ import React from 'react';
 import { CreateProjectService } from '@/modules/create-project/create-project.service';
 import { ComputeModeType } from '@/modules/p2p-project-list/components/common';
 import { PipelineTemplateType } from '@/modules/pipeline/pipeline-protocol';
-import { getModel, useModel } from '@/util/valtio-helper';
+import { useModel } from '@/util/valtio-helper';
 
 import styles from './index.less';
 
@@ -64,7 +64,7 @@ const scenes: SceneItem[] = [
     description:
       '多方在不泄露非交集数据的前提下，计算 ID 集合的交集，常用于黑名单共享、联合营销。',
     icon: <SwapOutlined />,
-    templateId: PipelineTemplateType.PSI,
+    templateId: PipelineTemplateType.PSI_SCENARIO,
     computeMode: ComputeModeType.MPC,
   },
   {
@@ -95,6 +95,11 @@ export const PrivacyScenesComponent: React.FC = () => {
   const handleRun = async (scene: SceneItem) => {
     setLoading(scene.title);
     try {
+      const quickConfigs =
+        scene.templateId !== PipelineTemplateType.BLANK
+          ? await createProjectService.buildScenarioQuickConfigs(scene.templateId)
+          : undefined;
+
       await createProjectService.createProject(
         {
           projectName: `${scene.title} - ${new Date().toLocaleString('zh-CN', {
@@ -109,6 +114,7 @@ export const PrivacyScenesComponent: React.FC = () => {
           nodes: ['alice', 'bob'],
         },
         true,
+        quickConfigs,
       );
     } catch (e) {
       message.error((e as Error).message || '创建项目失败');
@@ -151,5 +157,3 @@ export const PrivacyScenesComponent: React.FC = () => {
     </div>
   );
 };
-
-export const PrivacyScenesView = getModel(CreateProjectService);

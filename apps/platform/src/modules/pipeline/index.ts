@@ -13,6 +13,7 @@ import { TemplateTeePSI } from './templates/pipeline-template-psi-tee';
 import { TemplateGuideTeePSI } from './templates/pipeline-template-psi-tee-guide';
 import { TemplateRisk } from './templates/pipeline-template-risk';
 import { TemplateGuideRisk } from './templates/pipeline-template-risk-guide';
+import { TemplateScenarioPSI } from './templates/pipeline-template-scenario-psi';
 import { TemplateTEE } from './templates/pipeline-template-tee';
 import { TemplateGuidTEE } from './templates/pipeline-template-tee-guide';
 
@@ -30,6 +31,7 @@ PipelineTemplatesRegistry.register(getModel(TemplateTEE));
 PipelineTemplatesRegistry.register(getModel(TemplatePrivacy));
 PipelineTemplatesRegistry.register(getModel(TemplateBlank));
 PipelineTemplatesRegistry.register(getModel(TemplateGuidePSI));
+PipelineTemplatesRegistry.register(getModel(TemplateScenarioPSI));
 PipelineTemplatesRegistry.register(getModel(TemplateGuideTeePSI));
 PipelineTemplatesRegistry.register(getModel(TemplateGuideRisk));
 PipelineTemplatesRegistry.register(getModel(TemplateGuidePrivacy));

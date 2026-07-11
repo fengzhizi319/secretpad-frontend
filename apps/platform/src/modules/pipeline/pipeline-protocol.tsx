@@ -21,6 +21,7 @@ export enum PipelineTemplateType {
   DIFFERENTIAL_PRIVACY = 'differential-privacy', // 差分隐私
   DIFFERENTIAL_PRIVACY_GUIDE = 'differential-privacy-guide', // 差分隐私引导
   DATA_CLASSIFICATION = 'data-classification', // 数据分类分级
+  PSI_SCENARIO = 'psi-scenario', // 隐私求交典型场景
 }
 
 export type Pipeline = {
@@ -83,4 +84,5 @@ export const TemplateIcon = {
   [PipelineTemplateType.DIFFERENTIAL_PRIVACY]: SafetyOutlined,
   [PipelineTemplateType.DIFFERENTIAL_PRIVACY_GUIDE]: SafetyOutlined,
   [PipelineTemplateType.DATA_CLASSIFICATION]: SafetyOutlined,
+  [PipelineTemplateType.PSI_SCENARIO]: Psi,
 };

@@ -57,6 +57,50 @@ export class CreateProjectService extends Model {
     this.edgeNodeList = await this.nodeService.edgeListNode(nodeId);
   }
 
+  buildScenarioQuickConfigs = async (templateId: PipelineTemplateType) => {
+    await this.getNodeList();
+
+    const aliceNode = this.nodeList.find((i) => i.nodeId === 'alice');
+    const bobNode = this.nodeList.find((i) => i.nodeId === 'bob');
+    const aliceTable = aliceNode?.datatables?.[0];
+    const bobTable = bobNode?.datatables?.[0];
+
+    switch (templateId) {
+      case PipelineTemplateType.PSI:
+        if (!aliceTable || !bobTable) return undefined;
+        return {
+          dataTableReceiver: { s: aliceTable.datatableId },
+          dataTableSender: { s: bobTable.datatableId },
+          receiverKey: { ss: ['id1'] },
+          senderKey: { ss: ['id2'] },
+          receiverPSI: { ss: ['alice', 'bob'] },
+          featureSelects: { ss: ['age', 'education', 'default', 'y'] },
+        };
+      case PipelineTemplateType.PSI_SCENARIO:
+        if (!aliceTable || !bobTable) return undefined;
+        return {
+          dataTableReceiver: { s: aliceTable.datatableId },
+          dataTableSender: { s: bobTable.datatableId },
+          receiverKey: { ss: ['id1'] },
+          senderKey: { ss: ['id2'] },
+          receiverPSI: { ss: ['alice', 'bob'] },
+        };
+      case PipelineTemplateType.DIFFERENTIAL_PRIVACY:
+        if (!aliceTable) return undefined;
+        return {
+          dataTable: { s: aliceTable.datatableId },
+          queryCol: { s: 'age' },
+        };
+      case PipelineTemplateType.DATA_CLASSIFICATION:
+        if (!aliceTable) return undefined;
+        return {
+          dataTable: { s: aliceTable.datatableId },
+        };
+      default:
+        return undefined;
+    }
+  };
+
   getDatatableInfo = async (nodeId: string, datatableId: string) => {
     const { data } = await getDatatable({
       nodeId,
@@ -197,6 +241,7 @@ export class CreateProjectService extends Model {
       nodes: string[];
     },
     notGuidePage = false,
+    quickConfigs?: unknown,
   ) => {
     const { projectName, templateId, description, computeMode, nodes } = value;
     await this.getNodeList();
@@ -240,7 +285,12 @@ export class CreateProjectService extends Model {
       templateId === PipelineTemplateType.BLANK
         ? '自定义训练流'
         : `${template.name}模板`;
-    this.pipelineService.createPipeline(name, templateId, data?.projectId);
+    this.pipelineService.createPipeline(
+      name,
+      templateId,
+      data?.projectId,
+      quickConfigs,
+    );
 
     history.push(
       {
