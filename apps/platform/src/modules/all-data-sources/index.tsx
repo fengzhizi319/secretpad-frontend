@@ -37,7 +37,8 @@ export const AllDataSourcesComponent: React.FC = () => {
               page: 1,
               size: 1000,
             });
-            const sources = (res.data || []) as API.DatasourceListInfoAggregate[];
+            const sources = (res.data?.infos ||
+              []) as API.DatasourceListInfoAggregate[];
             sources.forEach((source) => {
               // 去重：同一数据源在多个节点可能出现，按 datasourceId + nodeId 聚合
               const relatedNode = source.nodes?.find((n) => n.nodeId === node.nodeId);
