@@ -88,7 +88,38 @@ export class CreateProjectService extends Model {
     await Promise.all(tasks);
   }
 
-  async addTablesToProject(projectId: string) {
+  async addTablesToProject(projectId: string, templateId?: PipelineTemplateType) {
+    // 数据分类分级为单表组件，只需要 alice/当前节点的第一张表
+    if (templateId === PipelineTemplateType.DATA_CLASSIFICATION) {
+      const ownerId = this.loginService.userInfo?.ownerId;
+      const isCenterAdmin =
+        this.loginService.userInfo?.platformType === 'CENTER' &&
+        this.loginService.userInfo?.ownerType === 'CENTER';
+
+      let targetNodeId = 'alice';
+      let targetTables: API.DatatableVO[] = [];
+
+      if (isCenterAdmin) {
+        targetTables =
+          this.nodeList?.find((i) => i.nodeId === 'alice')?.datatables || [];
+      } else if (ownerId) {
+        targetNodeId = ownerId;
+        targetTables =
+          this.edgeNodeList?.find((i) => i.nodeId === ownerId)?.datatables ||
+          this.nodeList?.find((i) => i.nodeId === ownerId)?.datatables ||
+          [];
+      }
+
+      if (targetTables.length > 0) {
+        await addProjectDatatable({
+          projectId: projectId,
+          nodeId: targetNodeId,
+          datatableId: targetTables[0].datatableId,
+        });
+      }
+      return;
+    }
+
     // center 平台admin 账号 还是使用Alice，和bob。
     if (
       this.loginService.userInfo?.platformType === 'CENTER' &&
@@ -198,7 +229,7 @@ export class CreateProjectService extends Model {
     await this.addInstToProject(data?.projectId as string);
     // 自定义训练流不需要添加默认数据表
     if (templateId !== PipelineTemplateType.BLANK) {
-      await this.addTablesToProject(data?.projectId as string);
+      await this.addTablesToProject(data?.projectId as string, templateId);
     }
 
     const template = this.pipelineTemplates.find(
