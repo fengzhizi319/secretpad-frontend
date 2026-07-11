@@ -23,6 +23,7 @@ import { hasAccess, Platform } from '@/components/platform-wrapper';
 import { GuideTourService } from '@/modules/guide-tour/guide-tour-service';
 import { ChangePasswordModal } from '@/modules/login/component/change-password';
 import { LoginService } from '@/modules/login/login.service';
+import { ThemeToggle } from '@/modules/theme/theme-toggle';
 import platformConfig from '@/platform.config';
 import { logout } from '@/services/secretpad/AuthController';
 import { get } from '@/services/secretpad/NodeController';
@@ -79,12 +80,9 @@ export const HeaderComponent = () => {
   const [avatarOfflineLink, setAvatarOfflineLink] = useState('');
 
   const onLogout = async () => {
-    await logout(
-      {},
-      {
-        name: loginService?.userInfo?.name,
-      },
-    );
+    await logout({
+      name: loginService?.userInfo?.name,
+    });
     history.push('/login');
   };
 
@@ -309,6 +307,7 @@ export const HeaderComponent = () => {
           </>
         )}
         {<>{platformConfig.header.rightLinks}</>}
+        <ThemeToggle />
         <span className={styles.loginline} />
         <Dropdown
           menu={{

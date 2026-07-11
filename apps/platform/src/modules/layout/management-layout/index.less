@@ -7,6 +7,11 @@
     height: 100%;
     flex-direction: column;
     justify-content: space-between;
+    padding: 12px 10px;
+    border-right: 1px solid var(--sp-border);
+    backdrop-filter: var(--sp-backdrop);
+    backdrop-filter: var(--sp-backdrop);
+    background: var(--sp-sidebar-bg);
     transition: width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s;
 
     :global {
@@ -16,28 +21,56 @@
         border-inline-end: none;
       }
 
+      .ant-menu-item {
+        display: flex;
+        width: 100%;
+        height: 40px;
+        align-items: center;
+        padding: 0 14px !important;
+        border-radius: 10px;
+        margin: 4px 0;
+        color: var(--sp-text-main);
+        font-size: 14px;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s;
+
+        .anticon {
+          font-size: 18px;
+        }
+      }
+
       .ant-menu-item-selected {
-        border-right: 3px solid #1677ff;
-        background-color: #e6f4ff;
+        border-right: none;
+        background: var(--sp-primary);
+        box-shadow: 0 4px 12px rgb(0 113 227 / 25%);
+        color: #fff;
+
+        &:hover {
+          background: var(--sp-primary-hover);
+          color: #fff;
+        }
       }
 
       .ant-menu-item:not(.ant-menu-item-selected):hover {
-        background-color: #f0f5ff;
-        color: #1677ff;
+        background: rgb(0 0 0 / 4%);
+        color: var(--sp-text-main);
       }
 
-      .ant-menu-item {
-        color: rgb(0 0 0 / 88%);
+      .ant-menu-inline-collapsed {
+        .ant-menu-item {
+          justify-content: center;
+          padding: 0 !important;
 
-        &.ant-menu-item-selected {
-          color: #1677ff;
+          .ant-menu-title-content {
+            display: none;
+          }
         }
       }
     }
   }
 
   .unfold {
-    width: 208px;
+    width: 240px;
   }
 
   .fold {
@@ -47,10 +80,10 @@
   .contentContainer {
     overflow: scroll;
     flex: 1;
-    border-radius: 8px;
+    border-radius: 16px;
     margin-right: 20px;
-    margin-left: 4px;
-    background-color: white;
+    margin-left: 12px;
+    background-color: transparent;
   }
 
   .workbenchContentContainer {
@@ -65,7 +98,23 @@
   .collapseInfo {
     display: flex;
     justify-content: space-around;
-    color: rgb(0 0 0 / 65%);
+    color: var(--sp-text-secondary);
     font-size: 12px;
+  }
+
+  .collapseIcon {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: var(--sp-text-secondary);
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgb(0 0 0 / 4%);
+    }
   }
 }
