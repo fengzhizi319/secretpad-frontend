@@ -15,9 +15,9 @@ import { history } from 'umi';
 
 import { ReactComponent as ManagedNode } from '@/assets/menu-node.svg';
 import { ReactComponent as projectManager } from '@/assets/project-manager.svg';
+import { AllDataSourcesComponent } from '@/modules/all-data-sources';
+import { AllDataTablesComponent } from '@/modules/all-data-tables';
 import { DashboardComponent } from '@/modules/dashboard';
-import { DataManagerComponent } from '@/modules/data-manager/data-manager.view';
-import { DataSourceListComponent } from '@/modules/data-source-list';
 import { HomeLayout } from '@/modules/layout/home-layout';
 import { HomeLayoutService } from '@/modules/layout/home-layout/home-layout.service';
 import { ManagementLayoutComponent } from '@/modules/layout/management-layout';
@@ -62,13 +62,13 @@ const menuItems: MenuItem[] = [
   {
     label: '数据源',
     icon: <DatabaseOutlined />,
-    component: <DataSourceListComponent />,
+    component: <AllDataSourcesComponent />,
     key: 'data-source',
   },
   {
     label: '数据表',
     icon: <TableOutlined />,
-    component: <DataManagerComponent />,
+    component: <AllDataTablesComponent />,
     key: 'data-management',
   },
   {
