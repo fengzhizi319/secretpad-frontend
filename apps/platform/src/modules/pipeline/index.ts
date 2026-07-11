@@ -4,6 +4,7 @@ import { getModel } from '@/util/valtio-helper';
 
 import type { PipelineTemplateContribution } from './pipeline-protocol';
 import { TemplateBlank } from './templates/pipeline-template-blank';
+import { TemplateDataClassification } from './templates/pipeline-template-data-classification';
 import { TemplatePrivacy } from './templates/pipeline-template-privacy';
 import { TemplateGuidePrivacy } from './templates/pipeline-template-privacy-guide';
 import { TemplatePSI } from './templates/pipeline-template-psi';
@@ -33,3 +34,4 @@ PipelineTemplatesRegistry.register(getModel(TemplateGuideTeePSI));
 PipelineTemplatesRegistry.register(getModel(TemplateGuideRisk));
 PipelineTemplatesRegistry.register(getModel(TemplateGuidePrivacy));
 PipelineTemplatesRegistry.register(getModel(TemplateGuidTEE));
+PipelineTemplatesRegistry.register(getModel(TemplateDataClassification));

@@ -17,21 +17,21 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Use pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: ^8.8
           run_install: false
@@ -43,7 +43,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -53,8 +53,14 @@ jobs:
       - name: Install deps
         run: pnpm install --ignore-scripts
 
-      - uses: nrwl/nx-set-shas@v3
+      - uses: nrwl/nx-set-shas@v4
         # https://nx.dev/recipes/ci/monorepo-ci-github-actions
 
-      - name: Run linters and tests
+      - name: Run linters and formatters
         run: pnpm run ci
+
+      - name: Run TypeScript type checking
+        run: pnpm nx affected --target=lint:typing --nx-bail=true
+
+      - name: Run tests
+        run: pnpm nx affected --target=test --nx-bail=true
