@@ -6,7 +6,7 @@ import {
   ArrowUpOutlined,
   MinusOutlined,
 } from '@ant-design/icons';
-import { Card, Col, Progress, Row, Space, Tag } from 'antd';
+import { Card, Col, Row, Space, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import platformConfig from '@/platform.config';
@@ -43,12 +43,6 @@ export const DashboardComponent: React.FC = () => {
   ]);
   const [recentProjects, setRecentProjects] = useState<ProjectVO[]>([]);
   const [recentNodes, setRecentNodes] = useState<NodeVO[]>([]);
-  const [health] = useState([
-    { label: 'CPU', value: 45, status: 'normal' },
-    { label: 'Memory', value: 60, status: 'normal' },
-    { label: 'Disk', value: 75, status: 'warning' },
-    { label: 'Network', value: 90, status: 'success' },
-  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -151,47 +145,6 @@ export const DashboardComponent: React.FC = () => {
                 </div>
               ))
             )}
-          </Card>
-        </Col>
-      </Row>
-
-      <Row gutter={[20, 20]} className={styles.healthRow}>
-        <Col span={24}>
-          <Card title="System Health" className={styles.healthCard} bordered={false}>
-            <Row gutter={[40, 24]}>
-              {health.map((item) => (
-                <Col xs={24} sm={12} md={6} key={item.label}>
-                  <div className={styles.healthItem}>
-                    <div className={styles.healthHeader}>
-                      <span>{item.label}</span>
-                      <span
-                        className={
-                          item.status === 'warning'
-                            ? styles.warning
-                            : item.status === 'success'
-                            ? styles.success
-                            : styles.normal
-                        }
-                      >
-                        {item.value}%
-                      </span>
-                    </div>
-                    <Progress
-                      percent={item.value}
-                      showInfo={false}
-                      strokeColor={
-                        item.status === 'warning'
-                          ? '#ff9500'
-                          : item.status === 'success'
-                          ? '#34c759'
-                          : '#0071e3'
-                      }
-                      trailColor="rgba(0,0,0,0.06)"
-                    />
-                  </div>
-                </Col>
-              ))}
-            </Row>
           </Card>
         </Col>
       </Row>
