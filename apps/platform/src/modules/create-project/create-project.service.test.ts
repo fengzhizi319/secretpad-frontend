@@ -1,6 +1,7 @@
 import '@secretflow/testing/jest';
 
 jest.mock('@/util/valtio-helper', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { proxy } = require('valtio');
 
   class Model {
@@ -119,12 +120,12 @@ jest.mock('../pipeline/pipeline-protocol', () => ({
     BLANK: 'blank',
     RISK: 'risk',
     PSI: 'psi',
-    'PSI_TEE': 'psi-tee',
-    'PSI_TEE_GUIDE': 'psi-tee-guide',
-    'RISK_GUIDE': 'risk-guide',
-    'PSI_GUIDE': 'psi-guide',
-    'TEE': 'TEE',
-    'TEE_GUIDE': 'tee-guide',
+    PSI_TEE: 'psi-tee',
+    PSI_TEE_GUIDE: 'psi-tee-guide',
+    RISK_GUIDE: 'risk-guide',
+    PSI_GUIDE: 'psi-guide',
+    TEE: 'TEE',
+    TEE_GUIDE: 'tee-guide',
   },
 }));
 
