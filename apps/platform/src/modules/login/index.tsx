@@ -2,10 +2,11 @@ import { message } from 'antd';
 import React from 'react';
 import { history } from 'umi';
 
-import { ReactComponent as Logo } from '@/assets/logo1.svg';
+import clifeLogo from '@/assets/clife-logo.jpg';
 import { Platform } from '@/components/platform-wrapper';
 import { DefaultComponentInterpreterService } from '@/modules/component-interpreter/component-interpreter-service';
 import { DefaultModalManager } from '@/modules/dag-modal-manager';
+import { ThemeToggle } from '@/modules/theme/theme-toggle';
 import platformConfig from '@/platform.config';
 import { getModel, Model, useModel } from '@/util/valtio-helper';
 
@@ -18,11 +19,21 @@ import { LoginService } from './login.service';
 export const LoginComponent: React.FC = () => {
   const loginModel = useModel(LoginModel);
   return (
-    <div className={styles.content}>
-      <div className={styles.left}>
-        <Logo />
+    <div className={styles.loginPage}>
+      <div className={styles.themeToggleWrapper}>
+        <ThemeToggle />
       </div>
-      <div className={styles.right}>
+      <div className={styles.loginBgBlobs}>
+        <div className={`${styles.blob} ${styles.blob1}`} />
+        <div className={`${styles.blob} ${styles.blob2}`} />
+        <div className={`${styles.blob} ${styles.blob3}`} />
+      </div>
+      <div className={styles.loginCard}>
+        <div className={styles.logoWrapper}>
+          <img src={clifeLogo} alt="C-Life" />
+        </div>
+        <div className={styles.brandTitle}>c-life 隐私计算平台</div>
+        <div className={styles.brandSlogan}>{platformConfig.slogan}</div>
         <LoginForm onConfirm={loginModel.loginConfirm} />
       </div>
     </div>

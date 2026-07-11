@@ -1,4 +1,4 @@
-import { Form, Typography, Button, Input } from 'antd';
+import { Form, Button, Input } from 'antd';
 import { useState } from 'react';
 
 import styles from './index.less';
@@ -11,7 +11,6 @@ export interface UserInfo {
 export const LoginForm = (props: {
   onConfirm: (userInfo: UserInfo) => Promise<void>;
 }) => {
-  const { Title } = Typography;
   const [loginState, setLoginState] = useState(false);
 
   const onFinish = async (values: UserInfo) => {
@@ -22,10 +21,6 @@ export const LoginForm = (props: {
 
   return (
     <div className={styles.loginForm}>
-      <Title level={3} className={styles.title}>
-        c-life 登录
-      </Title>
-      <p className={styles.slogan}>科技护航数据安全</p>
       <Form
         name="basic"
         initialValues={{ remember: true }}
