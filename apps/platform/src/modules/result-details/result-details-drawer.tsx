@@ -149,7 +149,11 @@ export const ResultDetailsDrawer: React.FC = () => {
                   nodeResultsVO?.datasourceType === DataSourceType.ODPS ||
                   nodeResultsVO?.datasourceType === DataSourceType.MYSQL
                 }
-                onClick={() => viewInstance.download(data?.nodeId)}
+                onClick={() =>
+                  nodeResultsVO?.datatableType === 'report'
+                    ? viewInstance.downloadReport(data?.nodeId)
+                    : viewInstance.download(data?.nodeId)
+                }
               >
                 下载结果
               </Button>
@@ -339,6 +343,13 @@ export class ResultDetailsView extends Model {
 
   download = (nodeId: string) => {
     this.resultManagerService.download(
+      nodeId || '',
+      this.resultDetail.nodeResultsVO as API.NodeResultsVO,
+    );
+  };
+
+  downloadReport = (nodeId: string) => {
+    this.resultManagerService.downloadReport(
       nodeId || '',
       this.resultDetail.nodeResultsVO as API.NodeResultsVO,
     );

@@ -80,10 +80,19 @@ export const ResultManagerComponent = () => {
 
     // 报告类型直接提供 详情 + 下载，不依赖 TEE 拉取状态
     if (record.datatableType === 'report') {
+      const reportDownloadButton = (
+        <Button
+          type="link"
+          style={{ paddingLeft: 0 }}
+          onClick={() => viewInstance.downloadReport(record, isAutonomy)}
+        >
+          下载
+        </Button>
+      );
       return (
         <Space>
           {detailButton}
-          {downloadButton}
+          {reportDownloadButton}
         </Space>
       );
     }
@@ -453,6 +462,12 @@ export class ResultManagerView extends Model {
     const { ownerId } = parse(window.location.search);
     const currentDownloadNodeId = isAutonomy ? tableInfo.nodeId : ownerId;
     this.resultManagerService.download(currentDownloadNodeId || '', tableInfo);
+  };
+
+  downloadReport = async (tableInfo: API.NodeResultsVO, isAutonomy: boolean) => {
+    const { ownerId } = parse(window.location.search);
+    const currentDownloadNodeId = isAutonomy ? tableInfo.nodeId : ownerId;
+    this.resultManagerService.downloadReport(currentDownloadNodeId || '', tableInfo);
   };
 
   copy = async (tableInfo: API.NodeResultsVO) => {
