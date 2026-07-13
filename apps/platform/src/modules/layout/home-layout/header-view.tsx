@@ -5,6 +5,7 @@ import {
   CaretDownOutlined,
   LogoutOutlined,
   DatabaseOutlined,
+  HomeOutlined,
 } from '@ant-design/icons';
 import { Avatar, Badge, Button, Dropdown, Empty, Popover, Space, Spin } from 'antd';
 import classNames from 'classnames';
@@ -26,8 +27,8 @@ import { LoginService } from '@/modules/login/login.service';
 import { ThemeToggle } from '@/modules/theme/theme-toggle';
 import platformConfig from '@/platform.config';
 import { logout } from '@/services/secretpad/AuthController';
-import { get } from '@/services/secretpad/NodeController';
 import { get as getInst } from '@/services/secretpad/InstController';
+import { get } from '@/services/secretpad/NodeController';
 import { getImgLink } from '@/util/tracert-helper';
 import { getModel, Model, useModel } from '@/util/valtio-helper';
 
@@ -231,18 +232,26 @@ export const HeaderComponent = () => {
         )}
       </div>
       <div className={styles.right}>
-        {/* {layoutService.showBackButton && (
+        {layoutService.showBackButton && (
           <>
             <span
               className={styles.community}
-              onClick={() => history.push('/home?tab=project-management')}
+              onClick={() => {
+                if (isAutonomyMode && loginService.userInfo?.ownerId) {
+                  history.push(
+                    `/edge?ownerId=${loginService.userInfo.ownerId}&tab=workbench`,
+                  );
+                } else {
+                  history.push('/home?tab=project-management');
+                }
+              }}
             >
-              <SwapOutlined />
-              返回工作台
+              <HomeOutlined />
+              返回主页
             </span>
             <span className={styles.line} />
           </>
-        )} */}
+        )}
 
         {platformConfig.guide && viewInstance.showGuide(pathname) && (
           <div className={styles.contentHeaderRight}>

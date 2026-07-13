@@ -1,9 +1,10 @@
-import { ArrowLeftOutlined, NodeIndexOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, NodeIndexOutlined, HomeOutlined } from '@ant-design/icons';
 import { Breadcrumb, Divider } from 'antd';
 import { parse, stringify } from 'query-string';
 import { useEffect } from 'react';
 import { history } from 'umi';
 
+import { goHome } from '@/components/back-to-home';
 import { PadMode } from '@/components/platform-wrapper';
 import { ComponentConfigDrawer } from '@/modules/component-config/config-modal';
 import { Log, LogLabel } from '@/modules/dag-log/log-viewer.view';
@@ -14,6 +15,7 @@ import { SlsService } from '@/modules/dag-log/sls-service';
 import { RecordGraphComponent } from '@/modules/dag-record/graph';
 import { RecordResultComponent } from '@/modules/dag-record/record-result-view';
 import { ResultDrawer } from '@/modules/dag-result/result-modal';
+import { LoginService } from '@/modules/login/login.service';
 import { PeriodicDetailType } from '@/modules/periodic-task/type';
 import { DefaultRecordService } from '@/modules/pipeline-record-list/record-service';
 import { useModel } from '@/util/valtio-helper';
@@ -26,6 +28,7 @@ export const PeriodicTaskDetailLayout = () => {
   const slsLogService = useModel(SlsService);
   const dagLayoutView = useModel(DagLayoutView);
   const recordService = useModel(DefaultRecordService);
+  const loginService = useModel(LoginService);
 
   const searchDagParams = window.location.search;
   const { projectId, mode, type } = parse(searchDagParams);
@@ -112,6 +115,9 @@ export const PeriodicTaskDetailLayout = () => {
       <div className={styles.header}>
         <span className={styles.back} onClick={goBack}>
           <ArrowLeftOutlined />
+        </span>
+        <span className={styles.back} onClick={() => goHome(loginService)}>
+          <HomeOutlined />
         </span>
         <Divider type="vertical" />
         <Breadcrumb items={breadCrumbItem} />

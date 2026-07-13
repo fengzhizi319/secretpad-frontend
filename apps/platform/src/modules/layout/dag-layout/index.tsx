@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, HomeOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import { Divider, Tabs, Space } from 'antd';
 import classnames from 'classnames';
@@ -6,6 +6,7 @@ import { parse } from 'query-string';
 import { useCallback, useEffect } from 'react';
 import { history } from 'umi';
 
+import { goHome } from '@/components/back-to-home';
 import { AccessWrapper, PadMode, Platform } from '@/components/platform-wrapper';
 import { AdvancedConfigComponent } from '@/modules/advanced-config/advanced-config-entry';
 import BinningResultDrawer from '@/modules/component-config/config-item-render/custom-render/binning-modification/drawer';
@@ -186,6 +187,9 @@ export const DagLayout = () => {
       <div className={styles.header}>
         <span className={styles.back} onClick={goBack}>
           <ArrowLeftOutlined />
+        </span>
+        <span className={styles.back} onClick={() => goHome(loginService)}>
+          <HomeOutlined />
         </span>
         <Divider type="vertical" />
         <span className={styles.title}>项目空间</span>

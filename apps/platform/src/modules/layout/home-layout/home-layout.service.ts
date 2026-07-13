@@ -12,6 +12,10 @@ export class HomeLayoutService extends Model {
 
   messageCount? = 0;
 
+  public setShowBackButton(show: boolean) {
+    this.showBackButton = show;
+  }
+
   public setSubTitle(title: string | ReactNode) {
     this.subTitle = title;
   }

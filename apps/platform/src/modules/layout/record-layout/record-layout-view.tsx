@@ -1,8 +1,9 @@
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, HomeOutlined } from '@ant-design/icons';
 import { Breadcrumb, Divider } from 'antd';
 import { parse, stringify } from 'query-string';
 import { history } from 'umi';
 
+import { goHome } from '@/components/back-to-home';
 import { PadMode, Platform, hasAccess } from '@/components/platform-wrapper';
 import { ComponentConfigDrawer } from '@/modules/component-config/config-modal';
 import { Log, LogLabel } from '@/modules/dag-log/log-viewer.view';
@@ -15,6 +16,7 @@ import { PipelineTitleComponent } from '@/modules/dag-record/pipeline-title-view
 import { RecordResultComponent } from '@/modules/dag-record/record-result-view';
 import { RecordGuideTourComponent } from '@/modules/dag-record-guide-tour/record-guide-tour.view';
 import { ResultDrawer } from '@/modules/dag-result/result-modal';
+import { LoginService } from '@/modules/login/login.service';
 import { RecordComponent } from '@/modules/main-dag/record';
 import { Model, useModel } from '@/util/valtio-helper';
 
@@ -32,6 +34,7 @@ export enum RecordArea {
 
 export const RecordLayout = () => {
   const slsLogService = useModel(SlsService);
+  const loginService = useModel(LoginService);
   const searchDagParams = window.location.search;
   const { projectId, mode, type } = parse(searchDagParams);
   const goBack = async () => {
@@ -83,6 +86,9 @@ export const RecordLayout = () => {
       <div className={styles.header}>
         <span className={styles.back} onClick={goBack}>
           <ArrowLeftOutlined />
+        </span>
+        <span className={styles.back} onClick={() => goHome(loginService)}>
+          <HomeOutlined />
         </span>
         <Divider type="vertical" />
         <Breadcrumb

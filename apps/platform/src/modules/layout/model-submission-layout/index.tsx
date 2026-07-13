@@ -1,9 +1,10 @@
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, HomeOutlined } from '@ant-design/icons';
 import { Divider, Button, Alert, Tooltip, Breadcrumb, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import { parse } from 'query-string';
 import { history } from 'umi';
 
+import { goHome } from '@/components/back-to-home';
 import { PadMode } from '@/components/platform-wrapper';
 import { Log, LogLabel } from '@/modules/dag-log/log-viewer.view';
 import { DagLogDrawer } from '@/modules/dag-log/log.drawer.layout';
@@ -20,6 +21,7 @@ import { ModelSubmissionDrawerItem } from '@/modules/dag-model-submission/submis
 import { SubmissionDrawerService } from '@/modules/dag-model-submission/submission-service';
 import { SubmitGraphComponent } from '@/modules/dag-submit/graph';
 import { ToolbuttonComponent } from '@/modules/dag-submit/toolbutton';
+import { LoginService } from '@/modules/login/login.service';
 import { Model, useModel, getModel } from '@/util/valtio-helper';
 
 import styles from './index.less';
@@ -29,6 +31,7 @@ const RIGHT_DIST = 20;
 export const ModelSubmissionLayout = () => {
   const viewInstance = useModel(ModelSubmissionView);
   const slsLogService = useModel(SlsService);
+  const loginService = useModel(LoginService);
 
   const goBack = async () => {
     viewInstance.submissionDrawerService.cancelSubmitTimer();
@@ -62,6 +65,9 @@ export const ModelSubmissionLayout = () => {
   return (
     <div className={styles.wrap}>
       <div className={styles.header}>
+        <span className={styles.back} onClick={() => goHome(loginService)}>
+          <HomeOutlined />
+        </span>
         <Popconfirm
           placement="right"
           title="退出模型提交则会中断提交进程"

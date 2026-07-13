@@ -405,8 +405,13 @@ export class MessageModel extends Model {
     this.p2pProjectListService = getModel(P2pProjectListService);
   }
 
+  onViewMount(): void {
+    this.homeLayoutService.setShowBackButton(true);
+  }
+
   onViewUnMount(): void {
     this.showMessageInfoDrawer = false;
+    this.homeLayoutService.setShowBackButton(false);
   }
 
   activeTab = MessageActiveTabType.PROCESS;
