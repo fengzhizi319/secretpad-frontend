@@ -118,7 +118,9 @@ export const ResultRuleComponent = (props: ResultComponentProps<'rule'>) => {
                   type="link"
                   style={{ paddingLeft: 8, fontSize: 12 }}
                   onClick={() =>
-                    resultManagerService.download(nodeId || '', { domainDataId: path })
+                    resultManagerService.download(nodeId || '', {
+                      domainDataId: tableId,
+                    })
                   }
                   disabled={downloadBtnDisabled.disable}
                 >

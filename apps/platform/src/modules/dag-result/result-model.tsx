@@ -119,7 +119,7 @@ export const ResultModelComponent = (props: ResultComponentProps<'model'>) => {
                       style={{ paddingLeft: 8, fontSize: 12 }}
                       onClick={() =>
                         resultManagerService.download(nodeId || '', {
-                          domainDataId: path,
+                          domainDataId: tableId,
                         })
                       }
                       disabled={downloadBtnDisabled.disable}

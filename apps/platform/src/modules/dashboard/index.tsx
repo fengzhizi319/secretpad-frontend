@@ -5,13 +5,18 @@ import {
   ApartmentOutlined,
   ArrowUpOutlined,
   MinusOutlined,
+  FileProtectOutlined,
 } from '@ant-design/icons';
 import { Card, Col, Row, Space, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { history } from 'umi';
 
+import { LoginService } from '@/modules/login/login.service';
+import { ResultManagerService } from '@/modules/result-manager/result-manager.service';
 import platformConfig from '@/platform.config';
 import { listNode } from '@/services/secretpad/NodeController';
 import { listProject } from '@/services/secretpad/ProjectController';
+import { useModel } from '@/util/valtio-helper';
 
 import styles from './index.less';
 
@@ -35,14 +40,20 @@ interface NodeVO {
 }
 
 export const DashboardComponent: React.FC = () => {
+  const loginService = useModel(LoginService);
+  const resultManagerService = useModel(ResultManagerService);
   const [stats, setStats] = useState<StatItem[]>([
     { label: 'Projects', value: 0, trend: '— 持平', icon: <ProjectOutlined /> },
     { label: 'Nodes', value: 0, trend: '— 持平', icon: <ClusterOutlined /> },
     { label: 'Data Tables', value: 0, trend: '— 持平', icon: <TableOutlined /> },
     { label: 'Graphs', value: 0, trend: '— 持平', icon: <ApartmentOutlined /> },
+    { label: 'Results', value: 0, trend: '— 持平', icon: <FileProtectOutlined /> },
   ]);
   const [recentProjects, setRecentProjects] = useState<ProjectVO[]>([]);
   const [recentNodes, setRecentNodes] = useState<NodeVO[]>([]);
+  const [resultOwnerId, setResultOwnerId] = useState<string>(
+    loginService.userInfo?.ownerId || 'kuscia-system',
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +62,21 @@ export const DashboardComponent: React.FC = () => {
 
         const nodes = (nodeRes.data || []) as NodeVO[];
         const projects = (projectRes.data || []) as ProjectVO[];
+
+        // 结果按首个可用节点统计；CENTER 管理员默认 ownerId 为 kuscia-system 时没有结果
+        const currentResultOwnerId =
+          nodes[0]?.nodeId || loginService.userInfo?.ownerId || 'kuscia-system';
+        setResultOwnerId(currentResultOwnerId);
+        const resultRes = await resultManagerService.getResultList(
+          currentResultOwnerId,
+          1,
+          1,
+          '',
+          [],
+          '',
+          null,
+        );
+        const resultTotal = resultRes?.totalNodeResultNums || 0;
 
         setStats((prev) =>
           prev.map((item) => {
@@ -68,6 +94,14 @@ export const DashboardComponent: React.FC = () => {
                 value: projects.length,
                 trend: projects.length > 0 ? '↑ 较上月' : '— 持平',
                 icon: <ProjectOutlined />,
+              };
+            }
+            if (item.label === 'Results') {
+              return {
+                ...item,
+                value: resultTotal,
+                trend: resultTotal > 0 ? '↑ 新增结果' : '— 持平',
+                icon: <FileProtectOutlined />,
               };
             }
             return item;
@@ -99,7 +133,16 @@ export const DashboardComponent: React.FC = () => {
       <Row gutter={[20, 20]} className={styles.statRow}>
         {stats.map((stat) => (
           <Col xs={24} sm={12} lg={6} key={stat.label}>
-            <Card className={styles.statCard} bordered={false} hoverable>
+            <Card
+              className={styles.statCard}
+              bordered={false}
+              hoverable
+              onClick={() => {
+                if (stat.label === 'Results') {
+                  history.push(`/node?ownerId=${resultOwnerId}&tab=result`);
+                }
+              }}
+            >
               <div className={styles.statIcon}>{stat.icon}</div>
               <div className={styles.statLabel}>{stat.label}</div>
               <div className={styles.statValue}>{stat.value}</div>

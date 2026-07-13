@@ -17,6 +17,21 @@ import { DescriptionTable } from './description-table';
 import './index.less';
 
 const STATS_PSI = 'stats/stats_psi';
+const PRIVACY_DP = 'privacy/differential_privacy';
+
+const formatDpResult = (
+  text: string | number,
+  record: Record<string, string | number>,
+  componentName?: string,
+) => {
+  if (componentName === PRIVACY_DP && record.query_type === 'count') {
+    const num = typeof text === 'number' ? text : Number(text);
+    if (!Number.isNaN(num)) {
+      return Math.round(num);
+    }
+  }
+  return text;
+};
 
 const getFullCsvDataForStatsPSI = (allTableInfo: Tab[]) => {
   const tableInfoMap = {};
@@ -76,6 +91,24 @@ export const OutputTable: React.FC<OutputTableProps> = (props) => {
     });
   };
 
+  const cellRender = (
+    text: string | number,
+    record: Record<string, string | number>,
+  ) => {
+    const displayText = formatDpResult(text, record, componentName);
+    const textStr = String(displayText ?? '');
+    return (
+      <div style={{ whiteSpace: 'nowrap' }} title={textStr}>
+        {textStr.length > 12 && isEllipsis
+          ? `${textStr.slice(0, 6)}...${textStr.slice(
+              textStr.length - 6,
+              textStr.length,
+            )}`
+          : displayText}
+      </div>
+    );
+  };
+
   const columnsList: Columns[] = [];
   tableInfo.schema.forEach(({ name, type }) => {
     if (name !== 'name') {
@@ -95,15 +128,7 @@ export const OutputTable: React.FC<OutputTableProps> = (props) => {
           return a[name] - b[name];
         },
         showSorterTooltip: false,
-        render: (text) => {
-          return (
-            <div style={{ whiteSpace: 'nowrap' }} title={text}>
-              {text?.length > 12 && isEllipsis
-                ? `${text.slice(0, 6)}...${text.slice(text.length - 6, text.length)}`
-                : text}
-            </div>
-          );
-        },
+        render: cellRender,
       });
     } else {
       columnsList.push({
@@ -111,15 +136,7 @@ export const OutputTable: React.FC<OutputTableProps> = (props) => {
         title: name,
         dataIndex: name,
         showSorterTooltip: false,
-        render: (text) => {
-          return (
-            <div style={{ whiteSpace: 'nowrap' }} title={text}>
-              {text?.length > 12 && isEllipsis
-                ? `${text.slice(0, 6)}...${text.slice(text.length - 6, text.length)}`
-                : text}
-            </div>
-          );
-        },
+        render: cellRender,
       });
     }
   });
