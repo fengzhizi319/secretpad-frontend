@@ -30,7 +30,7 @@ export default defineConfig({
   npmClient: 'pnpm',
   // https: {},
   svgr: {},
-  title: 'c-life 开放平台',
+  title: 'c-life 隐私计算平台',
   favicons: ['/favicon.ico'],
   extraBabelPlugins: [
     'babel-plugin-transform-typescript-metadata',
