@@ -4,14 +4,14 @@ import { Model } from '@/util/valtio-helper';
 import type { PipelineTemplateContribution } from '../pipeline-protocol';
 import { PipelineTemplateType } from '../pipeline-protocol';
 
-export class TemplateDataClassification
+export class TemplateLocalDifferentialPrivacy
   extends Model
   implements PipelineTemplateContribution
 {
-  type: PipelineTemplateType = PipelineTemplateType.DATA_CLASSIFICATION;
-  name = `数据分类分级`;
+  type: PipelineTemplateType = PipelineTemplateType.LOCAL_DIFFERENTIAL_PRIVACY;
+  name = `本地差分隐私测试`;
   argsFilled = false;
-  description = '单节点数据分类分级测试模板';
+  description = '单节点本地差分隐私测试模板';
   computeMode = ['MPC', 'TEE'];
 
   minimap = templateImg;
@@ -57,26 +57,49 @@ export class TemplateDataClassification
         {
           outputs: [`${graphId}-node-2-output-0`, `${graphId}-node-2-output-1`],
           nodeDef: {
-            attrPaths: ['mode', 'mode/auto/default_level'],
+            attrPaths: [
+              'op',
+              'mechanism',
+              'query_col',
+              'epsilon',
+              'categories_json',
+              'random_state',
+            ],
             attrs: [
               {
-                s: 'auto',
+                s: 'perturb',
                 is_na: false,
               },
               {
-                s: 'L3',
+                s: 'binary_rr',
+                is_na: false,
+              },
+              {
+                s: 'has_disease',
+                is_na: false,
+              },
+              {
+                f: 1.0,
+                is_na: false,
+              },
+              {
+                s: '[]',
+                is_na: false,
+              },
+              {
+                i64: 42,
                 is_na: false,
               },
             ],
             domain: `privacy`,
-            name: `data_classification`,
-            version: `1.1.0`,
+            name: `local_differential_privacy`,
+            version: `1.0.0`,
           },
           inputs: [`${graphId}-node-1-output-0`],
-          codeName: `privacy/data_classification`,
+          codeName: `privacy/local_differential_privacy`,
           x: -260,
           y: -80,
-          label: `数据分类分级`,
+          label: `本地差分隐私`,
           graphNodeId: `${graphId}-node-2`,
           status: `STAGING`,
         },

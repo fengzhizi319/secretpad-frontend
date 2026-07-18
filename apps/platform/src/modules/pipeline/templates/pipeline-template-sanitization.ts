@@ -4,14 +4,14 @@ import { Model } from '@/util/valtio-helper';
 import type { PipelineTemplateContribution } from '../pipeline-protocol';
 import { PipelineTemplateType } from '../pipeline-protocol';
 
-export class TemplateDataClassification
+export class TemplateSanitization
   extends Model
   implements PipelineTemplateContribution
 {
-  type: PipelineTemplateType = PipelineTemplateType.DATA_CLASSIFICATION;
-  name = `数据分类分级`;
+  type: PipelineTemplateType = PipelineTemplateType.SANITIZATION;
+  name = `数据脱敏测试`;
   argsFilled = false;
-  description = '单节点数据分类分级测试模板';
+  description = '单节点数据脱敏测试模板';
   computeMode = ['MPC', 'TEE'];
 
   minimap = templateImg;
@@ -57,26 +57,22 @@ export class TemplateDataClassification
         {
           outputs: [`${graphId}-node-2-output-0`, `${graphId}-node-2-output-1`],
           nodeDef: {
-            attrPaths: ['mode', 'mode/auto/default_level'],
+            attrPaths: ['rules_json'],
             attrs: [
               {
-                s: 'auto',
-                is_na: false,
-              },
-              {
-                s: 'L3',
+                s: JSON.stringify(['mask_id_card', 'mask_mobile', 'mask_name']),
                 is_na: false,
               },
             ],
             domain: `privacy`,
-            name: `data_classification`,
+            name: `sanitization`,
             version: `1.1.0`,
           },
           inputs: [`${graphId}-node-1-output-0`],
-          codeName: `privacy/data_classification`,
+          codeName: `privacy/sanitization`,
           x: -260,
           y: -80,
-          label: `数据分类分级`,
+          label: `数据脱敏`,
           graphNodeId: `${graphId}-node-2`,
           status: `STAGING`,
         },
