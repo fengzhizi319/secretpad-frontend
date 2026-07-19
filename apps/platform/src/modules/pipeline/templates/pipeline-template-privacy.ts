@@ -15,7 +15,7 @@ export class TemplatePrivacy extends Model implements PipelineTemplateContributi
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content = (graphId: string, quickConfigs?: any) => {
-    const { dataTable, queryCol } = quickConfigs || {};
+    const { dataTable } = quickConfigs || {};
 
     const tableDef = dataTable
       ? {
@@ -23,10 +23,6 @@ export class TemplatePrivacy extends Model implements PipelineTemplateContributi
           attrs: [{ ...dataTable, is_na: false }],
         }
       : {};
-
-    const colAttr = queryCol
-      ? { ...queryCol, is_na: false }
-      : { s: 'age', is_na: false };
 
     return {
       edges: [
@@ -60,40 +56,24 @@ export class TemplatePrivacy extends Model implements PipelineTemplateContributi
           nodeDef: {
             attrPaths: [
               'query_type',
-              'query_col',
               'epsilon_total',
-              'delta',
               'epsilon_per_query',
-              'delta_per_query',
               'mechanism',
-              'column_sensitivities_json',
-              'bins_json',
-              'true_count',
-              'true_sum',
-              'true_counts_json',
-              'sensitivity',
               'random_state',
+              'min_count',
+              'mode',
             ],
             attrs: [
               {
-                s: 'mean',
+                s: 'count',
                 is_na: false,
               },
-              colAttr,
+              {
+                f: 10.0,
+                is_na: false,
+              },
               {
                 f: 1.0,
-                is_na: false,
-              },
-              {
-                f: 0.0,
-                is_na: false,
-              },
-              {
-                f: 0.1,
-                is_na: false,
-              },
-              {
-                f: 0.0,
                 is_na: false,
               },
               {
@@ -101,31 +81,15 @@ export class TemplatePrivacy extends Model implements PipelineTemplateContributi
                 is_na: false,
               },
               {
-                s: JSON.stringify({ age: 1.0 }),
+                i64: 42,
                 is_na: false,
               },
               {
-                s: '[]',
+                f: 5.0,
                 is_na: false,
               },
               {
-                f: 0.0,
-                is_na: false,
-              },
-              {
-                f: 0.0,
-                is_na: false,
-              },
-              {
-                s: '{}',
-                is_na: false,
-              },
-              {
-                f: 0.0,
-                is_na: false,
-              },
-              {
-                i64: 0,
+                s: 'use_column_sensitivity',
                 is_na: false,
               },
             ],

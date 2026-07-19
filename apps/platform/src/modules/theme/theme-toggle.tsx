@@ -1,4 +1,4 @@
-import { MoonOutlined, SunOutlined } from '@ant-design/icons';
+import { BulbOutlined } from '@ant-design/icons';
 import { Button, Tooltip } from 'antd';
 import React from 'react';
 
@@ -11,7 +11,7 @@ export const ThemeToggle: React.FC = () => {
       <Button
         type="text"
         shape="circle"
-        icon={theme === 'light' ? <MoonOutlined /> : <SunOutlined />}
+        icon={<BulbOutlined />}
         onClick={toggleTheme}
       />
     </Tooltip>

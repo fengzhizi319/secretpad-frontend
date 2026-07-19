@@ -1,10 +1,10 @@
 import {
   ApartmentOutlined,
   BlockOutlined,
+  EyeInvisibleOutlined,
   MergeCellsOutlined,
   SafetyOutlined,
   SecurityScanOutlined,
-  SwapOutlined,
 } from '@ant-design/icons';
 import { Button, Card, Tag, message } from 'antd';
 import React from 'react';
@@ -28,6 +28,16 @@ interface SceneItem {
 
 const scenes: SceneItem[] = [
   {
+    title: 'K-匿名脱敏',
+    tag: 'K-Anon',
+    tagColor: 'orange',
+    description:
+      '对标识符与准标识符进行泛化与抑制，确保同一等价组内记录数 ≥ K，降低重识别风险。',
+    icon: <MergeCellsOutlined />,
+    templateId: PipelineTemplateType.K_ANONYMITY,
+    computeMode: ComputeModeType.MPC,
+  },
+  {
     title: '差分隐私统计',
     tag: 'DP',
     tagColor: 'blue',
@@ -35,16 +45,6 @@ const scenes: SceneItem[] = [
       '在多方数据上添加 Laplace/Gaussian 噪声，实现 ε-差分隐私的聚合统计，保护个体记录不被反推。',
     icon: <SecurityScanOutlined />,
     templateId: PipelineTemplateType.DIFFERENTIAL_PRIVACY,
-    computeMode: ComputeModeType.MPC,
-  },
-  {
-    title: 'K-匿名脱敏',
-    tag: 'K-Anon',
-    tagColor: 'orange',
-    description:
-      '对标识符与准标识符进行泛化与抑制，确保同一等价组内记录数 ≥ K，降低重识别风险。',
-    icon: <MergeCellsOutlined />,
-    templateId: PipelineTemplateType.BLANK,
     computeMode: ComputeModeType.MPC,
   },
   {
@@ -59,41 +59,32 @@ const scenes: SceneItem[] = [
   },
   {
     title: '查询混淆',
-    tag: 'QO',
+    tag: 'Query Obfuscation',
     tagColor: 'purple',
     description:
-      '通过将真实查询与虚拟查询混合，隐藏用户的真实查询意图，支持单条与批量两种模式。',
-    icon: <SecurityScanOutlined />,
+      '对敏感查询进行混淆与伪名替换，生成若干 dummy 查询以隐藏真实意图，适用于医疗等敏感领域。',
+    icon: <EyeInvisibleOutlined />,
     templateId: PipelineTemplateType.QUERY_OBFUSCATION,
     computeMode: ComputeModeType.MPC,
   },
   {
-    title: '隐私求交（PSI）',
-    tag: 'PSI',
-    tagColor: 'blue',
+    title: 'L-多样性',
+    tag: 'L-Diversity',
+    tagColor: 'cyan',
     description:
-      '多方在不泄露非交集数据的前提下，计算 ID 集合的交集，常用于黑名单共享、联合营销。',
-    icon: <SwapOutlined />,
-    templateId: PipelineTemplateType.PSI_SCENARIO,
-    computeMode: ComputeModeType.MPC,
-  },
-  {
-    title: '安全聚合',
-    tag: 'SecAgg',
-    tagColor: 'blue',
-    description:
-      '联邦学习场景下对多方梯度/参数进行安全聚合，防止服务端看到单方原始梯度。',
+      '在K-匿名基础上确保每个等价组内敏感属性具有至少 L 个不同取值，进一步防止同质性攻击。',
     icon: <ApartmentOutlined />,
-    templateId: PipelineTemplateType.BLANK,
+    templateId: PipelineTemplateType.L_DIVERSITY,
     computeMode: ComputeModeType.MPC,
   },
   {
-    title: '安全分箱与 WOE',
-    tag: 'Binning',
-    tagColor: 'green',
-    description: '多方联合计算特征分箱与证据权重（WOE），用于联邦风控评分卡建模。',
+    title: '本地差分隐私',
+    tag: 'Local DP',
+    tagColor: 'magenta',
+    description:
+      '在数据本地采集阶段对单个样本添加随机化噪声，实现本地化差分隐私保护，无需可信中心。',
     icon: <BlockOutlined />,
-    templateId: PipelineTemplateType.BLANK,
+    templateId: PipelineTemplateType.LOCAL_DIFFERENTIAL_PRIVACY,
     computeMode: ComputeModeType.MPC,
   },
 ];
@@ -105,10 +96,26 @@ export const PrivacyScenesComponent: React.FC = () => {
   const handleRun = async (scene: SceneItem) => {
     setLoading(scene.title);
     try {
-      const quickConfigs =
+      let quickConfigs =
         scene.templateId !== PipelineTemplateType.BLANK
           ? await createProjectService.buildScenarioQuickConfigs(scene.templateId)
           : undefined;
+
+      // Fallback for new privacy templates that still need a single alice datatable
+      // but are not yet handled by buildScenarioQuickConfigs.
+      if (
+        !quickConfigs &&
+        scene.templateId !== PipelineTemplateType.BLANK &&
+        scene.templateId !== PipelineTemplateType.QUERY_OBFUSCATION
+      ) {
+        const aliceNode = createProjectService.nodeList.find(
+          (i) => i.nodeId === 'alice',
+        );
+        const aliceTable = aliceNode?.datatables?.[0];
+        if (aliceTable) {
+          quickConfigs = { dataTable: { s: aliceTable.datatableId } };
+        }
+      }
 
       await createProjectService.createProject(
         {

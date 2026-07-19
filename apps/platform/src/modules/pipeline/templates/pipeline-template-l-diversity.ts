@@ -4,14 +4,11 @@ import { Model } from '@/util/valtio-helper';
 import type { PipelineTemplateContribution } from '../pipeline-protocol';
 import { PipelineTemplateType } from '../pipeline-protocol';
 
-export class TemplateDataClassification
-  extends Model
-  implements PipelineTemplateContribution
-{
-  type: PipelineTemplateType = PipelineTemplateType.DATA_CLASSIFICATION;
-  name = `数据分类分级`;
+export class TemplateLDiversity extends Model implements PipelineTemplateContribution {
+  type: PipelineTemplateType = PipelineTemplateType.L_DIVERSITY;
+  name = `L-多样性测试`;
   argsFilled = false;
-  description = '单节点数据分类分级测试模板';
+  description = '单节点L-多样性测试模板';
   computeMode = ['MPC', 'TEE'];
 
   minimap = templateImg;
@@ -57,26 +54,49 @@ export class TemplateDataClassification
         {
           outputs: [`${graphId}-node-2-output-0`, `${graphId}-node-2-output-1`],
           nodeDef: {
-            attrPaths: ['mode', 'mode/auto/default_level'],
+            attrPaths: [
+              'k',
+              'l',
+              'qi_cols_json',
+              'sa_cols_json',
+              'suppression_rate',
+              'report_result',
+            ],
             attrs: [
               {
-                s: 'auto',
+                i64: 2,
                 is_na: false,
               },
               {
-                s: 'L3',
+                i64: 2,
+                is_na: false,
+              },
+              {
+                s: JSON.stringify(['age', 'zipcode']),
+                is_na: false,
+              },
+              {
+                s: JSON.stringify(['diagnosis']),
+                is_na: false,
+              },
+              {
+                f: 0.05,
+                is_na: false,
+              },
+              {
+                b: true,
                 is_na: false,
               },
             ],
             domain: `privacy`,
-            name: `data_classification`,
-            version: `1.1.0`,
+            name: `l_diversity`,
+            version: `1.0.0`,
           },
           inputs: [`${graphId}-node-1-output-0`],
-          codeName: `privacy/data_classification`,
+          codeName: `privacy/l_diversity`,
           x: -260,
           y: -80,
-          label: `数据分类分级`,
+          label: `L-多样性`,
           graphNodeId: `${graphId}-node-2`,
           status: `STAGING`,
         },
