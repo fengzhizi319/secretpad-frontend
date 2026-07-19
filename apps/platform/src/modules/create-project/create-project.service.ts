@@ -133,6 +133,10 @@ export class CreateProjectService extends Model {
   }
 
   async addTablesToProject(projectId: string, templateId?: PipelineTemplateType) {
+    // 查询混淆组件不依赖输入表，直接返回
+    if (templateId === PipelineTemplateType.QUERY_OBFUSCATION) {
+      return;
+    }
     // 数据分类分级为单表组件，只需要 alice/当前节点的第一张表
     if (templateId === PipelineTemplateType.DATA_CLASSIFICATION) {
       const ownerId = this.loginService.userInfo?.ownerId;

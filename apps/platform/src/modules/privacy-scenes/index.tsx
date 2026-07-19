@@ -58,6 +58,16 @@ const scenes: SceneItem[] = [
     computeMode: ComputeModeType.MPC,
   },
   {
+    title: '查询混淆',
+    tag: 'QO',
+    tagColor: 'purple',
+    description:
+      '通过将真实查询与虚拟查询混合，隐藏用户的真实查询意图，支持单条与批量两种模式。',
+    icon: <SecurityScanOutlined />,
+    templateId: PipelineTemplateType.QUERY_OBFUSCATION,
+    computeMode: ComputeModeType.MPC,
+  },
+  {
     title: '隐私求交（PSI）',
     tag: 'PSI',
     tagColor: 'blue',

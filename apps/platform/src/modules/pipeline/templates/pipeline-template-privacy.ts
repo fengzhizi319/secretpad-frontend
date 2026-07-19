@@ -68,6 +68,10 @@ export class TemplatePrivacy extends Model implements PipelineTemplateContributi
               'mechanism',
               'column_sensitivities_json',
               'bins_json',
+              'true_count',
+              'true_sum',
+              'true_counts_json',
+              'sensitivity',
               'random_state',
             ],
             attrs: [
@@ -105,13 +109,29 @@ export class TemplatePrivacy extends Model implements PipelineTemplateContributi
                 is_na: false,
               },
               {
+                f: 0.0,
+                is_na: false,
+              },
+              {
+                f: 0.0,
+                is_na: false,
+              },
+              {
+                s: '{}',
+                is_na: false,
+              },
+              {
+                f: 0.0,
+                is_na: false,
+              },
+              {
                 i64: 0,
                 is_na: false,
               },
             ],
             domain: `privacy`,
             name: `differential_privacy`,
-            version: `1.0.0`,
+            version: `1.1.0`,
           },
           inputs: [`${graphId}-node-1-output-0`],
           codeName: `privacy/differential_privacy`,
