@@ -2,40 +2,120 @@
 version: 2.1
 
 jobs:
-  main:
+  lint:
     docker:
       - image: cimg/node:lts-browsers
     steps:
       - checkout
-      # look for existing cache and restore if found
       - restore_cache:
           key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
-      # install dependencies
       - run:
-          name: install dependencies
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@8.8 --activate
+      - run:
+          name: Install dependencies
           command: pnpm install --ignore-scripts
-       # pnpm version
-      - run:
-         name: Install pnpm package manager
-         command: |
-          corepack enable
-          corepack prepare pnpm@8.8 --activate
-      # save any changes to the cache
       - save_cache:
           key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - node_modules
       - run:
-          name: Run lint and tests
+          name: Run lint checks
           command: pnpm run ci
+
+  test:
+    docker:
+      - image: cimg/node:lts-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@8.8 --activate
+      - run:
+          name: Install dependencies
+          command: pnpm install --ignore-scripts
+      - save_cache:
+          key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+      - run:
+          name: Run tests with coverage
+          command: pnpm test -- --coverage --coverageReporters=text --coverageReporters=lcov
+      - store_artifacts:
+          path: coverage
+          destination: coverage
+
+  build:
+    docker:
+      - image: cimg/node:lts-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@8.8 --activate
+      - run:
+          name: Install dependencies
+          command: pnpm install --ignore-scripts
+      - save_cache:
+          key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+      - run:
+          name: Build production bundle
+          command: pnpm build
+      - store_artifacts:
+          path: apps/platform/dist
+          destination: dist
+
+  security:
+    docker:
+      - image: cimg/node:lts-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@8.8 --activate
+      - run:
+          name: Install dependencies
+          command: pnpm install --ignore-scripts
+      - save_cache:
+          key: npm-dependencies-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+      - run:
+          name: Run security audit
+          command: pnpm audit --audit-level=high || true
 
 workflows:
   version: 2
 
   ci:
     jobs:
-      - main:
+      - lint:
           filters:
             branches:
               only:
                 - main
+      - test:
+          requires:
+            - lint
+      - build:
+          requires:
+            - lint
+      - security:
+          requires:
+            - lint

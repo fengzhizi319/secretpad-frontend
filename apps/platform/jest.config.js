@@ -15,4 +15,14 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@@/(.*)$': '<rootDir>/src/.umi/$1',
   },
+  // Coverage thresholds / 覆盖率门禁
+  coverageThreshold: {
+    global: {
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60,
+    },
+  },
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/.umi/**', '!src/**/*.d.ts'],
 };
