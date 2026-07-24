@@ -11,8 +11,10 @@
   padding-bottom: 24px;
 
   .contentHeaderleft {
+    color: var(--sp-text-main);
     font-size: 20px;
     font-weight: 500;
+    letter-spacing: -0.3px;
   }
 
   .contentHeaderRight {
@@ -21,9 +23,19 @@
     height: 32px;
     box-sizing: border-box;
     border-radius: 16px;
-    background-image: linear-gradient(270deg, #319dff 0%, #166bff 100%);
-    box-shadow: 0 4px 10px 0 rgb(22 119 255 / 6%), 0 2px 4px 0 rgb(22 119 255 / 16%);
+    background-image: linear-gradient(
+      270deg,
+      var(--sp-primary-hover) 0%,
+      var(--sp-primary) 100%
+    );
+    box-shadow: 0 4px 10px 0 rgb(0 113 227 / 6%), 0 2px 4px 0 rgb(0 113 227 / 16%);
     line-height: 32px;
+    transition: var(--sp-transition);
+
+    &:hover {
+      box-shadow: 0 6px 16px 0 rgb(0 113 227 / 12%), 0 3px 6px 0 rgb(0 113 227 / 22%);
+      transform: translateY(-1px);
+    }
 
     .smallGirl {
       position: absolute;
@@ -59,14 +71,16 @@
 
   .projectContentLeft {
     width: 73%;
-    border-radius: 8px;
-    background: #fff;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-card-bg);
+    box-shadow: var(--sp-shadow-sm);
   }
 
   .projectContentRight {
     width: 27%;
-    border-radius: 8px;
+    border-radius: var(--sp-radius-md);
     margin-left: 20px;
-    background: #fff;
+    background: var(--sp-card-bg);
+    box-shadow: var(--sp-shadow-sm);
   }
 }

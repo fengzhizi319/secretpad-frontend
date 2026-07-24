@@ -43,11 +43,11 @@ export const DashboardComponent: React.FC = () => {
   const loginService = useModel(LoginService);
   const resultManagerService = useModel(ResultManagerService);
   const [stats, setStats] = useState<StatItem[]>([
-    { label: 'Projects', value: 0, trend: '— 持平', icon: <ProjectOutlined /> },
-    { label: 'Nodes', value: 0, trend: '— 持平', icon: <ClusterOutlined /> },
-    { label: 'Data Tables', value: 0, trend: '— 持平', icon: <TableOutlined /> },
-    { label: 'Graphs', value: 0, trend: '— 持平', icon: <ApartmentOutlined /> },
-    { label: 'Results', value: 0, trend: '— 持平', icon: <FileProtectOutlined /> },
+    { label: '项目', value: 0, trend: '— 持平', icon: <ProjectOutlined /> },
+    { label: '节点', value: 0, trend: '— 持平', icon: <ClusterOutlined /> },
+    { label: '数据表', value: 0, trend: '— 持平', icon: <TableOutlined /> },
+    { label: '画布', value: 0, trend: '— 持平', icon: <ApartmentOutlined /> },
+    { label: '结果', value: 0, trend: '— 持平', icon: <FileProtectOutlined /> },
   ]);
   const [recentProjects, setRecentProjects] = useState<ProjectVO[]>([]);
   const [recentNodes, setRecentNodes] = useState<NodeVO[]>([]);
@@ -80,7 +80,7 @@ export const DashboardComponent: React.FC = () => {
 
         setStats((prev) =>
           prev.map((item) => {
-            if (item.label === 'Nodes') {
+            if (item.label === '节点') {
               return {
                 ...item,
                 value: nodes.length,
@@ -88,7 +88,7 @@ export const DashboardComponent: React.FC = () => {
                 icon: <ClusterOutlined />,
               };
             }
-            if (item.label === 'Projects') {
+            if (item.label === '项目') {
               return {
                 ...item,
                 value: projects.length,
@@ -96,7 +96,7 @@ export const DashboardComponent: React.FC = () => {
                 icon: <ProjectOutlined />,
               };
             }
-            if (item.label === 'Results') {
+            if (item.label === '结果') {
               return {
                 ...item,
                 value: resultTotal,
@@ -131,14 +131,14 @@ export const DashboardComponent: React.FC = () => {
       <div className={styles.pageTitle}>{platformConfig.home.HomePageTitle}</div>
 
       <Row gutter={[20, 20]} className={styles.statRow}>
-        {stats.map((stat) => (
+        {stats.map((stat, idx) => (
           <Col xs={24} sm={12} lg={6} key={stat.label}>
             <Card
-              className={styles.statCard}
+              className={`${styles.statCard} ${styles[`statCard${idx}`] || ''}`}
               bordered={false}
               hoverable
               onClick={() => {
-                if (stat.label === 'Results') {
+                if (stat.label === '结果') {
                   history.push(`/node?ownerId=${resultOwnerId}&tab=result`);
                 }
               }}
@@ -157,7 +157,7 @@ export const DashboardComponent: React.FC = () => {
 
       <Row gutter={[20, 20]}>
         <Col xs={24} lg={12}>
-          <Card title="Recent Projects" className={styles.listCard} bordered={false}>
+          <Card title="最近项目" className={styles.listCard} bordered={false}>
             {recentProjects.length === 0 ? (
               <div className={styles.empty}>暂无项目</div>
             ) : (
@@ -173,7 +173,7 @@ export const DashboardComponent: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card title="Recent Nodes" className={styles.listCard} bordered={false}>
+          <Card title="最近节点" className={styles.listCard} bordered={false}>
             {recentNodes.length === 0 ? (
               <div className={styles.empty}>暂无节点</div>
             ) : (

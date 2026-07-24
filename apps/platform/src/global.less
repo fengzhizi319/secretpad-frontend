@@ -3,50 +3,176 @@ body {
   height: 100%;
   padding: 0;
   margin: 0;
-  background-color: #f5f5f7;
-  color: #1d1d1f;
+  background-color: var(--sp-bg);
+  color: var(--sp-text-main);
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons',
     'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 // 与 docs/front-end/prototype 原型一致的全局 Apple CSS 变量
 :root {
   --sp-primary: #0071e3;
   --sp-primary-hover: #147ce5;
+  --sp-primary-light: rgb(0 113 227 / 8%);
   --sp-success: #34c759;
+  --sp-success-light: rgb(52 199 89 / 10%);
   --sp-warning: #ff9500;
+  --sp-warning-light: rgb(255 149 0 / 10%);
   --sp-error: #ff3b30;
+  --sp-error-light: rgb(255 59 48 / 10%);
+  --sp-purple: #5e5ce6;
+  --sp-purple-light: rgb(94 92 230 / 10%);
   --sp-text-main: #1d1d1f;
   --sp-text-secondary: #86868b;
+  --sp-text-tertiary: rgb(0 0 0 / 45%);
   --sp-border: rgb(0 0 0 / 8%);
   --sp-border-hover: rgb(0 0 0 / 15%);
   --sp-bg: #f5f5f7;
+  --sp-bg-elevated: #fbfbfd;
   --sp-card-bg: #fff;
+  --sp-card-bg-secondary: #f7f8fa;
   --sp-header-bg: rgb(255 255 255 / 72%);
   --sp-sidebar-bg: rgb(245 245 247 / 60%);
   --sp-shadow-sm: 0 2px 8px rgb(0 0 0 / 4%);
   --sp-shadow-md: 0 12px 30px rgb(0 0 0 / 6%);
   --sp-shadow-lg: 0 24px 50px rgb(0 0 0 / 12%);
   --sp-backdrop: blur(20px) saturate(190%);
+  --sp-radius-sm: 8px;
+  --sp-radius-md: 12px;
+  --sp-radius-lg: 20px;
+  --sp-transition: all 0.2s ease;
+  --sp-scrollbar-track: #f0f0f0;
+  --sp-scrollbar-thumb: #c8c8c8;
+  --sp-scrollbar-thumb-hover: #a8a8a8;
 }
 
 [data-theme='dark'] {
   --sp-primary: #0a84ff;
   --sp-primary-hover: #359aff;
+  --sp-primary-light: rgb(10 132 255 / 12%);
   --sp-success: #30d158;
+  --sp-success-light: rgb(48 209 88 / 12%);
   --sp-warning: #ff9f0a;
+  --sp-warning-light: rgb(255 159 10 / 12%);
   --sp-error: #ff453a;
+  --sp-error-light: rgb(255 69 58 / 12%);
+  --sp-purple: #5e5ce6;
+  --sp-purple-light: rgb(94 92 230 / 14%);
   --sp-text-main: #f5f5f7;
   --sp-text-secondary: #8e8e93;
+  --sp-text-tertiary: rgb(255 255 255 / 40%);
   --sp-border: rgb(255 255 255 / 8%);
   --sp-border-hover: rgb(255 255 255 / 15%);
   --sp-bg: #1c1c1e;
+  --sp-bg-elevated: #242426;
   --sp-card-bg: #2c2c2e;
+  --sp-card-bg-secondary: #343436;
   --sp-header-bg: rgb(28 28 30 / 75%);
   --sp-sidebar-bg: rgb(28 28 30 / 65%);
   --sp-shadow-sm: 0 2px 8px rgb(0 0 0 / 20%);
   --sp-shadow-md: 0 12px 30px rgb(0 0 0 / 25%);
   --sp-shadow-lg: 0 24px 50px rgb(0 0 0 / 40%);
+  --sp-scrollbar-track: #2c2c2e;
+  --sp-scrollbar-thumb: #48484a;
+  --sp-scrollbar-thumb-hover: #636366;
+
+  // Ant Design 全局暗色适配
+  .ant-card {
+    background: var(--sp-card-bg);
+    color: var(--sp-text-main);
+  }
+
+  .ant-table {
+    background: var(--sp-card-bg);
+    color: var(--sp-text-main);
+
+    .ant-table-thead > tr > th {
+      border-bottom-color: var(--sp-border);
+      background: var(--sp-card-bg-secondary);
+      color: var(--sp-text-main);
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom-color: var(--sp-border);
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background: var(--sp-card-bg-secondary);
+    }
+  }
+
+  .ant-modal {
+    .ant-modal-content {
+      background: var(--sp-card-bg);
+      color: var(--sp-text-main);
+    }
+
+    .ant-modal-header {
+      border-bottom-color: var(--sp-border);
+      background: var(--sp-card-bg);
+    }
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-select-selector,
+  .ant-picker {
+    border-color: var(--sp-border) !important;
+    background: var(--sp-card-bg-secondary) !important;
+    color: var(--sp-text-main);
+  }
+
+  .ant-dropdown-menu {
+    background: var(--sp-card-bg);
+
+    .ant-dropdown-menu-item {
+      color: var(--sp-text-main);
+
+      &:hover {
+        background: var(--sp-card-bg-secondary);
+      }
+    }
+  }
+
+  .ant-tabs-tab {
+    color: var(--sp-text-secondary);
+  }
+
+  .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--sp-primary);
+  }
+}
+
+// 全局平滑主题过渡（排除动画元素）
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+// 全局统一滚动条
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: var(--sp-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: var(--sp-scrollbar-thumb);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sp-scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--sp-scrollbar-thumb-hover);
 }
 
 // drawer 关闭按钮在右侧显示

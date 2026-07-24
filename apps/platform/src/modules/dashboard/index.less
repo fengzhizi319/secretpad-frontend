@@ -15,7 +15,7 @@
 }
 
 .statCard {
-  border-radius: 20px;
+  border-radius: var(--sp-radius-lg);
   box-shadow: var(--sp-shadow-sm);
   transition: transform 0.2s, box-shadow 0.2s;
 
@@ -35,11 +35,37 @@
   height: 44px;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: var(--sp-radius-md);
   margin-bottom: 16px;
-  background: rgb(0 113 227 / 8%);
+  background: var(--sp-primary-light);
   color: var(--sp-primary);
   font-size: 22px;
+}
+
+// 每个统计卡片独立配色
+.statCard0 .statIcon {
+  background: var(--sp-primary-light);
+  color: var(--sp-primary);
+}
+
+.statCard1 .statIcon {
+  background: var(--sp-success-light);
+  color: var(--sp-success);
+}
+
+.statCard2 .statIcon {
+  background: var(--sp-warning-light);
+  color: var(--sp-warning);
+}
+
+.statCard3 .statIcon {
+  background: var(--sp-purple-light);
+  color: var(--sp-purple);
+}
+
+.statCard4 .statIcon {
+  background: var(--sp-error-light);
+  color: var(--sp-error);
 }
 
 .statLabel {
@@ -62,7 +88,7 @@
 }
 
 .listCard {
-  border-radius: 20px;
+  border-radius: var(--sp-radius-lg);
   box-shadow: var(--sp-shadow-sm);
 
   :global(.ant-card-head) {

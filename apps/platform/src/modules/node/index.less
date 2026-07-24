@@ -15,11 +15,18 @@
   height: 42px;
   align-items: center;
   justify-content: center;
-  border-radius: 5px;
-  background: #fff;
-  color: #666;
+  border-radius: var(--sp-radius-sm);
+  background: var(--sp-card-bg);
+  box-shadow: var(--sp-shadow-sm);
+  color: var(--sp-text-secondary);
   cursor: pointer;
   font-size: 20px;
+  transition: var(--sp-transition);
+
+  &:hover {
+    box-shadow: var(--sp-shadow-md);
+    color: var(--sp-primary);
+  }
 }
 
 .nodeInfo {
@@ -29,9 +36,9 @@
   box-sizing: border-box;
   align-items: center;
   padding: 0 24px;
-  border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 5%);
+  border-radius: var(--sp-radius-md);
+  background-color: var(--sp-card-bg);
+  box-shadow: var(--sp-shadow-sm);
 
   .currentNode {
     display: flex;
@@ -47,7 +54,7 @@
     padding: 9px 0;
 
     .nodeName {
-      color: rgb(0 0 0 / 88%);
+      color: var(--sp-text-main);
       cursor: pointer;
       font-size: 20px;
       font-weight: 500;
@@ -55,7 +62,7 @@
 
     .nodeNameSpread {
       margin-left: 8px;
-      color: rgb(0 0 0 / 45%);
+      color: var(--sp-text-tertiary);
       font-size: 14px;
     }
 
@@ -65,15 +72,15 @@
       :global {
         .ant-tag-success {
           border: none;
-          background: rgb(216 251 231 / 100%);
-          color: rgb(35 182 95 / 100%);
+          background: var(--sp-success-light);
+          color: var(--sp-success);
         }
       }
     }
   }
 
   .nodeId {
-    color: rgb(0 0 0 / 45%);
+    color: var(--sp-text-tertiary);
     font-size: 14px;
     font-weight: 400;
     letter-spacing: 0;
@@ -83,7 +90,7 @@
     display: flex;
     width: 340px;
     align-items: center;
-    color: #525964;
+    color: var(--sp-text-secondary);
     font-size: 14px;
   }
 }
@@ -92,7 +99,7 @@
   width: 98%;
   height: 100px;
   flex: 1;
-  border-radius: 8px;
+  border-radius: var(--sp-radius-md);
   margin-top: 24px;
 
   :global {
@@ -105,16 +112,19 @@
     }
 
     .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
-      background: rgb(0 0 0 / 8%);
+      background: var(--sp-card-bg-secondary);
+      color: var(--sp-text-secondary);
     }
 
     .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
-      background: #fff;
+      background: var(--sp-card-bg);
+      color: var(--sp-text-main);
     }
 
     .ant-tabs-content-holder {
       overflow: auto;
       border-radius: 0 6px 6px;
+      background: var(--sp-card-bg);
     }
 
     .ant-tabs-nav {
@@ -130,12 +140,12 @@
 
     .ant-tabs-tab:nth-child(1) {
       border: 0;
-      border-radius: 8px 0 0 !important;
+      border-radius: var(--sp-radius-sm) 0 0 !important;
     }
 
     .ant-tabs-tab:nth-child(2) {
       border: 0;
-      border-radius: 0 8px 0 0 !important;
+      border-radius: 0 var(--sp-radius-sm) 0 0 !important;
     }
   }
 }

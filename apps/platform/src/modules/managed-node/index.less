@@ -1,36 +1,12 @@
-:global {
-  ::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background: #eee;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: #ccc;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    border-radius: 10px;
-    background: #bbb;
-  }
-
-  ::-webkit-scrollbar-thumb:active {
-    border-radius: 10px;
-    background: #bbb;
-  }
-}
-
 .nodeContent {
   height: 100%;
   padding: 20px;
 
   .title {
     margin-bottom: 16px;
+    color: var(--sp-text-main);
     font-size: 16px;
+    font-weight: 500;
   }
 
   .content {
@@ -47,13 +23,15 @@
       height: 126px;
       box-sizing: content-box;
       padding: 12px;
-      border-radius: 8px;
-      background-color: #f7f8fa;
+      border: 1px solid transparent;
+      border-radius: var(--sp-radius-md);
+      background-color: var(--sp-card-bg-secondary);
       cursor: pointer;
+      transition: var(--sp-transition);
 
       .nodeInfoTop {
         height: 56px;
-        border-bottom: 1px solid rgb(0 0 0 / 4%);
+        border-bottom: 1px solid var(--sp-border);
 
         .nodeInfoTopText {
           display: flex;
@@ -65,7 +43,7 @@
             overflow: hidden;
             width: 180px;
             margin-left: 4px;
-            color: rgb(0 0 0 / 85%);
+            color: var(--sp-text-main);
             font-size: 14px;
             font-weight: 400;
             text-overflow: ellipsis;
@@ -79,12 +57,13 @@
             align-items: center;
             justify-content: center;
             border-radius: 10px;
-            background-color: #d8fbe7;
+            background-color: var(--sp-success-light);
+            color: var(--sp-success);
           }
 
           button {
             border: 0;
-            color: #1677ff;
+            color: var(--sp-primary);
             font-size: 12px;
           }
         }
@@ -92,21 +71,19 @@
         .id {
           margin-top: 7px;
           margin-left: 24px;
-          color: rgb(0 0 0 / 45%);
+          color: var(--sp-text-tertiary);
           font-size: 12px;
         }
       }
 
       .nodeInfoBootom {
-        // display: flex;
         height: calc(100% - 85px);
-        // justify-content: space-around;
         padding: 16px 0;
 
         .nodeInfoBootomItem {
           .ItemName {
             margin-bottom: 4px;
-            color: rgb(0 0 0 / 60%);
+            color: var(--sp-text-secondary);
             font-size: 12px;
 
             :global(.anticon) {
@@ -116,32 +93,31 @@
 
           .ItemNumber {
             margin-left: 12px;
-            color: rgb(0 0 0 / 88%);
+            color: var(--sp-text-main);
             cursor: pointer;
             font-size: 18px;
             font-weight: 500;
           }
 
           .ItemNumber:hover {
-            color: #1677ff;
+            color: var(--sp-primary);
           }
         }
       }
     }
 
     .nodeInfo:hover {
-      border: 1px solid #1677ff;
-      margin-top: -1px;
-      margin-left: -1px;
+      border: 1px solid var(--sp-primary);
+      box-shadow: var(--sp-shadow-sm);
     }
   }
 }
 
 .nodePopoverList {
   border-radius: 0;
-  border-top: 1px solid rgb(5 5 5 / 6%);
+  border-top: 1px solid var(--sp-border);
   border-right: none !important;
-  border-bottom: 1px solid rgb(5 5 5 / 6%);
+  border-bottom: 1px solid var(--sp-border);
   border-left: none !important;
 
   :global(.ant-list-item) {
@@ -155,6 +131,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    background-color: #d8fbe7;
+    background-color: var(--sp-success-light);
+    color: var(--sp-success);
   }
 }
