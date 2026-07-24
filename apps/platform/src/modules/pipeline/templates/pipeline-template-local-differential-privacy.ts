@@ -18,7 +18,7 @@ export class TemplateLocalDifferentialPrivacy
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content = (graphId: string, quickConfigs?: any) => {
-    const { dataTable } = quickConfigs || {};
+    const { dataTable, queryCol } = quickConfigs || {};
 
     const tableDef = dataTable
       ? {
@@ -26,6 +26,9 @@ export class TemplateLocalDifferentialPrivacy
           attrs: [{ ...dataTable, is_na: false }],
         }
       : {};
+
+    // Use user-selected column from quick config; fall back to empty.
+    const queryColValue = queryCol?.s || queryCol || '';
 
     return {
       edges: [
@@ -75,8 +78,8 @@ export class TemplateLocalDifferentialPrivacy
                 is_na: false,
               },
               {
-                s: 'has_disease',
-                is_na: false,
+                s: queryColValue,
+                is_na: !queryColValue,
               },
               {
                 f: 1.0,

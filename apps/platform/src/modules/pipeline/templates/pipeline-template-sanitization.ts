@@ -18,7 +18,7 @@ export class TemplateSanitization
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content = (graphId: string, quickConfigs?: any) => {
-    const { dataTable } = quickConfigs || {};
+    const { dataTable, sanitizationCols } = quickConfigs || {};
 
     const tableDef = dataTable
       ? {
@@ -26,6 +26,12 @@ export class TemplateSanitization
           attrs: [{ ...dataTable, is_na: false }],
         }
       : {};
+
+    // Generate proper rules_json from user-selected columns.
+    // Each column uses auto_mask which auto-detects type (id_card/mobile/name/etc).
+    const cols: string[] = sanitizationCols || [];
+    const rules = cols.map((col) => ({ column: col, method: 'auto_mask' }));
+    const rulesJson = JSON.stringify(rules);
 
     return {
       edges: [
@@ -60,7 +66,7 @@ export class TemplateSanitization
             attrPaths: ['rules_json'],
             attrs: [
               {
-                s: JSON.stringify(['mask_id_card', 'mask_mobile', 'mask_name']),
+                s: rulesJson,
                 is_na: false,
               },
             ],

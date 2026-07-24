@@ -1,0 +1,206 @@
+import { Form, Select } from 'antd';
+import { parse } from 'query-string';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'umi';
+
+import {
+  getProject,
+  getProjectDatatable,
+} from '@/services/secretpad/ProjectController';
+
+import styles from './index.less';
+
+const { Option } = Select;
+
+/**
+ * K-匿名快速配置面板。
+ * 让用户从已授权的数据表中选择准标识符列（QI）和敏感属性列（SA），
+ * 避免模板硬编码列名与实际数据不匹配导致运行失败。
+ */
+export const QuickConfigKAnonymity = () => {
+  const form = Form.useFormInstance();
+  const { search } = useLocation();
+  const { projectId } = parse(search) as { projectId: string };
+
+  const [tables, setTables] = useState<
+    {
+      datatableId: string;
+      datatableName: string;
+      nodeId: string;
+      nodeName: string;
+    }[]
+  >([]);
+
+  const [columns, setColumns] = useState<{ value: string; label: string }[]>([]);
+
+  const selectedTable = Form.useWatch('dataTable', form);
+
+  // Load project tables and default to Alice's first table.
+  useEffect(() => {
+    const loadTables = async () => {
+      const { data } = await getProject({ projectId });
+      if (!data) return;
+      const { nodes } = data;
+      if (!nodes) return;
+
+      const tableList: {
+        datatableId: string;
+        datatableName: string;
+        nodeId: string;
+        nodeName: string;
+      }[] = [];
+
+      nodes.forEach((node) => {
+        const { datatables, nodeId, nodeName } = node;
+        if (!datatables || !nodeId) return;
+        datatables.forEach((table) => {
+          if (table.datatableId && table.datatableName) {
+            tableList.push({
+              datatableId: table.datatableId,
+              datatableName: table.datatableName,
+              nodeId,
+              nodeName: nodeName || '',
+            });
+          }
+        });
+      });
+
+      setTables(tableList);
+
+      if (tableList.length > 0) {
+        const defaultTable =
+          tableList.find(
+            (t) => t.nodeName.toLowerCase().includes('alice') || t.nodeName === 'alice',
+          ) || tableList[0];
+
+        form.setFieldsValue({
+          dataTable: { s: defaultTable.datatableId },
+        });
+      }
+    };
+
+    loadTables();
+  }, [projectId, form]);
+
+  // Load columns when table changes.
+  useEffect(() => {
+    const loadColumns = async () => {
+      const tableId = selectedTable?.s;
+      if (!tableId) {
+        setColumns([]);
+        return;
+      }
+
+      const table = tables.find((t) => t.datatableId === tableId);
+      if (!table) {
+        setColumns([]);
+        return;
+      }
+
+      const { data: tableConfig } = await getProjectDatatable({
+        projectId,
+        nodeId: table.nodeId,
+        datatableId: table.datatableId,
+        type: 'CSV',
+      });
+
+      if (!tableConfig?.configs) {
+        setColumns([]);
+        return;
+      }
+
+      const configs = (tableConfig.configs || []) as { colName: string }[];
+      const colOptions = configs.map(({ colName }) => ({
+        value: colName,
+        label: colName,
+      }));
+      setColumns(colOptions);
+
+      // Default: select 'age' as QI if present, first column as SA.
+      const ageCol = colOptions.find((c) => c.value === 'age');
+      if (ageCol) {
+        form.setFieldsValue({
+          qiCols: [ageCol.value],
+        });
+      }
+      if (colOptions.length > 0) {
+        const lastCol = colOptions[colOptions.length - 1];
+        form.setFieldsValue({
+          saCols: [lastCol.value],
+        });
+      }
+    };
+
+    loadColumns();
+  }, [selectedTable, tables, projectId, form]);
+
+  return (
+    <>
+      <Form.Item
+        label={<div className={styles.configItemLabel}>样本表</div>}
+        name="dataTable"
+        messageVariables={{ label: '样本表' }}
+        rules={[{ required: true }]}
+        valuePropName="value"
+        colon={false}
+        getValueProps={(value) => ({ value: value?.s })}
+        getValueFromEvent={(value) => ({ s: value })}
+      >
+        <Select
+          optionLabelProp="title"
+          showSearch
+          filterOption={(input: string, option?: { label: string; value: string }) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+        >
+          {tables.map((table) => (
+            <Option
+              key={table.datatableId}
+              value={table.datatableId}
+              label={`${table.datatableName} (${table.nodeName})`}
+              title={`${table.datatableName} (${table.nodeName})`}
+            >
+              {`${table.datatableName} (${table.nodeName})`}
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
+
+      <Form.Item
+        label={<div className={styles.configItemLabel}>准标识符列 (QI)</div>}
+        name="qiCols"
+        messageVariables={{ label: '准标识符列' }}
+        rules={[{ required: true, message: '请选择至少一个准标识符列' }]}
+        colon={false}
+      >
+        <Select
+          mode="multiple"
+          showSearch
+          options={columns}
+          placeholder="选择用于泛化/抑制的准标识符列"
+          filterOption={(input: string, option?: { label: string; value: string }) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+        />
+      </Form.Item>
+
+      <Form.Item
+        label={<div className={styles.configItemLabel}>敏感属性列 (SA)</div>}
+        name="saCols"
+        messageVariables={{ label: '敏感属性列' }}
+        rules={[{ required: true, message: '请选择至少一个敏感属性列' }]}
+        colon={false}
+      >
+        <Select
+          mode="multiple"
+          showSearch
+          options={columns}
+          placeholder="选择需要保护的敏感属性列"
+          filterOption={(input: string, option?: { label: string; value: string }) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+        />
+      </Form.Item>
+    </>
+  );
+};

@@ -15,7 +15,7 @@ export class TemplateLDiversity extends Model implements PipelineTemplateContrib
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content = (graphId: string, quickConfigs?: any) => {
-    const { dataTable } = quickConfigs || {};
+    const { dataTable, qiCols, saCols } = quickConfigs || {};
 
     const tableDef = dataTable
       ? {
@@ -23,6 +23,10 @@ export class TemplateLDiversity extends Model implements PipelineTemplateContrib
           attrs: [{ ...dataTable, is_na: false }],
         }
       : {};
+
+    // Use user-selected columns from quick config; fall back to empty arrays.
+    const qiColsJson = JSON.stringify(qiCols || []);
+    const saColsJson = JSON.stringify(saCols || []);
 
     return {
       edges: [
@@ -72,11 +76,11 @@ export class TemplateLDiversity extends Model implements PipelineTemplateContrib
                 is_na: false,
               },
               {
-                s: JSON.stringify(['age', 'zipcode']),
+                s: qiColsJson,
                 is_na: false,
               },
               {
-                s: JSON.stringify(['diagnosis']),
+                s: saColsJson,
                 is_na: false,
               },
               {

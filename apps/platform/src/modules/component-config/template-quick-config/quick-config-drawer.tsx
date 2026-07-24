@@ -12,7 +12,9 @@ import { getModel, useModel } from '@/util/valtio-helper';
 import { DefaultComponentConfigService } from '../component-config-service';
 
 import styles from './index.less';
+import { QuickConfigKAnonymity } from './quick-config-k-anonymity';
 import { QuickConfigPrivacy } from './quick-config-privacy';
+import { QuickConfigSanitization } from './quick-config-sanitization';
 import { QuickConfigPSI } from './quick-config-psi';
 import { QuickConfigRisk } from './quick-config-risk';
 import { QuickConfigTee } from './quick-config-risk-tee';
@@ -78,6 +80,12 @@ export const QuickConfigModal = () => {
           {type === PipelineTemplateType.PSI_TEE && <QuickConfigPSI />}
           {type === PipelineTemplateType.TEE && <QuickConfigTee />}
           {type === PipelineTemplateType.DIFFERENTIAL_PRIVACY && <QuickConfigPrivacy />}
+          {type === PipelineTemplateType.K_ANONYMITY && <QuickConfigKAnonymity />}
+          {type === PipelineTemplateType.L_DIVERSITY && <QuickConfigKAnonymity />}
+          {type === PipelineTemplateType.SANITIZATION && <QuickConfigSanitization />}
+          {type === PipelineTemplateType.LOCAL_DIFFERENTIAL_PRIVACY && (
+            <QuickConfigPrivacy />
+          )}
 
           <div className={styles.footer}>
             <Space>
