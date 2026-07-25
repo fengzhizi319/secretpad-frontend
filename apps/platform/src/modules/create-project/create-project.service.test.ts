@@ -195,6 +195,7 @@ describe('CreateProjectService', () => {
       '自定义训练流',
       'blank',
       'project-test-001',
+      undefined,
     );
 
     expect(history.push).toHaveBeenCalledWith(
