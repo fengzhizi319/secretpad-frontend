@@ -5,11 +5,12 @@ import React, { useEffect } from 'react';
 
 import { hasAccess, Platform } from '@/components/platform-wrapper';
 import { formatTimestamp } from '@/modules/dag-result/utils';
-import { DataManagerView } from '@/modules/data-manager/data-manager.view';
 import { ComputeModeType, computeModeText } from '@/modules/project-list';
 import { getDatatable } from '@/services/secretpad/DatatableController';
 import { deleteProjectDatatable } from '@/services/secretpad/ProjectController';
 import { getModel, Model, useModel } from '@/util/valtio-helper';
+
+import { DatatableInfoService } from '../component/data-table-auth/data-table-auth.service';
 
 import styles from './index.less';
 import type { ProjectAuthConfigType } from './project-auth-config';
@@ -111,7 +112,7 @@ export const DataTableAuth: React.FC<IProps> = (props: IProps) => {
 };
 
 export class DataTableAuthModel extends Model {
-  dataManagerViewService = getModel(DataManagerView);
+  datatableInfoService = getModel(DatatableInfoService);
 
   projectAuthRecord: API.AuthProjectVO | undefined = undefined;
 
@@ -164,7 +165,7 @@ export class DataTableAuthModel extends Model {
 
     if (res.status?.code == 0) {
       message.success('取消成功');
-      this.dataManagerViewService.getTableList();
+      this.datatableInfoService.eventEmitter.fire(null);
     } else {
       message.error('操作失败');
     }

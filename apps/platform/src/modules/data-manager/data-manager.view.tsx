@@ -1,7 +1,8 @@
 import { SearchOutlined, InfoCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent, TourProps } from 'antd';
-import { message, Tag } from 'antd';
 import {
+  message,
+  Tag,
   Button,
   Radio,
   Input,
@@ -13,12 +14,14 @@ import {
   Typography,
   Tooltip,
   Empty,
+  Modal,
+  Select,
 } from 'antd';
 import type { MessageInstance } from 'antd/es/message/interface';
-import type { FilterValue } from 'antd/es/table/interface';
+import type { FilterValue, TableRowSelection } from 'antd/es/table/interface';
 import { parse } from 'query-string';
 import type { ChangeEvent } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'umi';
 
 import { confirmDelete } from '@/components/comfirm-delete';
@@ -38,6 +41,11 @@ import {
   pushDatatableToTeeNode,
   getDatatable,
 } from '@/services/secretpad/DatatableController';
+import { listP2PProject } from '@/services/secretpad/P2PProjectController';
+import {
+  addProjectDatatable,
+  listProject,
+} from '@/services/secretpad/ProjectController';
 import { getModel, Model, useModel } from '@/util/valtio-helper';
 
 import { LoginService } from '../login/login.service';
@@ -105,13 +113,13 @@ export const DataManagerComponent: React.FC = () => {
       key: 'authProjects',
       render: (authProjects: API.AuthProjectVO[]) => {
         const authProjectsFixed = authProjects || [];
+        const previewNames = authProjectsFixed
+          .slice(0, 2)
+          .map((i) => i.name)
+          .join('、');
         return (
           <div style={{ display: 'flex' }}>
-            {(authProjectsFixed || [])
-              .slice(0, 2)
-              .map((i) => i.name)
-              .join('、')}
-            {authProjectsFixed.length ? ',' : ''}共
+            {previewNames && <span style={{ marginRight: 4 }}>{previewNames}，</span>}共
             <Popover
               placement="right"
               title="已授权项目"
@@ -246,7 +254,7 @@ export const DataManagerComponent: React.FC = () => {
         tableInfo2: API.DatatableVO,
         index: number,
       ) => {
-        const extendProps: any = {};
+        const extendProps: Record<string, unknown> = {};
         if (index === 0) {
           extendProps['ref'] = ref1;
         }
@@ -326,9 +334,97 @@ export const DataManagerComponent: React.FC = () => {
       newColumns = columns.filter((item) => item.key !== 'pushToTeeStatus');
     }
     if (!isAutonomyMode) {
-      newColumns = columns.filter((item) => item.key !== 'nodeName');
+      newColumns = newColumns.filter((item) => item.key !== 'nodeName');
     }
     return newColumns;
+  };
+
+  const rowSelection: TableRowSelection<API.DatatableVO> = useMemo(
+    () => ({
+      type: 'checkbox',
+      selectedRowKeys: viewInstance.selectedRowKeys,
+      preserveSelectedRowKeys: true,
+      onChange: (selectedRowKeys, selectedRows) => {
+        viewInstance.selectedRowKeys = selectedRowKeys;
+        viewInstance.selectedRows = selectedRows;
+      },
+      getCheckboxProps: (record: API.DatatableVO) => ({
+        disabled: embeddedSheets.includes(record.datatableName || ''),
+      }),
+    }),
+    [viewInstance.selectedRowKeys, viewInstance.selectedRows],
+  );
+
+  const selectedCount = viewInstance.selectedRowKeys.length;
+
+  const [batchAuthOpen, setBatchAuthOpen] = useState(false);
+  const [batchProjectId, setBatchProjectId] = useState<string | undefined>();
+  const [projectOptions, setProjectOptions] = useState<
+    { label: JSX.Element | string; value: string }[]
+  >([]);
+
+  useEffect(() => {
+    if (!batchAuthOpen) {
+      setBatchProjectId(undefined);
+      return;
+    }
+    const loadProjects = async () => {
+      const isP2p = isAutonomyMode;
+      const { data, status } = isP2p ? await listP2PProject() : await listProject();
+      if (status?.code !== 0) {
+        setProjectOptions([]);
+        return;
+      }
+      const projectData = isP2p
+        ? (data || []).filter((item) => item.status === 'APPROVED')
+        : data || [];
+      setProjectOptions(
+        projectData.map((item) => ({
+          value: item.projectId || '',
+          label: item.projectName || '',
+        })),
+      );
+    };
+    loadProjects();
+  }, [batchAuthOpen, isAutonomyMode]);
+
+  const handleBatchDelete = () => {
+    const deletable = viewInstance.selectedRows.filter(
+      (row) =>
+        !embeddedSheets.includes(row.datatableName || '') &&
+        !(row.authProjects && row.authProjects.length > 0),
+    );
+    if (deletable.length === 0) {
+      messageApi.warning('选中的数据表均不可删除（已授权或内置数据表）');
+      return;
+    }
+    confirmDelete({
+      name: `共 ${deletable.length} 个数据表`,
+      description: '删除后不可恢复，请谨慎操作',
+      onOk: async () => {
+        await viewInstance.batchDelete(
+          deletable,
+          isAutonomyMode,
+          ownerId as string,
+          messageApi,
+        );
+      },
+    });
+  };
+
+  const handleBatchAuth = async () => {
+    if (!batchProjectId) {
+      messageApi.warning('请选择要授权的项目');
+      return;
+    }
+    await viewInstance.batchAuth(
+      batchProjectId,
+      isAutonomyMode,
+      ownerId as string,
+      messageApi,
+    );
+    setBatchAuthOpen(false);
+    setBatchProjectId(undefined);
   };
 
   return (
@@ -354,18 +450,39 @@ export const DataManagerComponent: React.FC = () => {
             <Radio.Button value="UnAvailable">不可用</Radio.Button>
           </Radio.Group>
         </div>
-        <div>
+        <Space>
+          <Button
+            onClick={() => viewInstance.toggleBatchMode()}
+            type={viewInstance.batchMode ? 'primary' : 'default'}
+            ghost={!viewInstance.batchMode}
+          >
+            {viewInstance.batchMode ? '退出批量管理' : '批量管理'}
+          </Button>
           <Button type="primary" onClick={() => viewInstance.addData()}>
             添加数据
           </Button>
-        </div>
+        </Space>
       </div>
+      {viewInstance.batchMode && selectedCount > 0 && (
+        <div className={styles.batchBar}>
+          <span style={{ marginRight: 16 }}>
+            已选择 <strong>{selectedCount}</strong> 个数据表
+          </span>
+          <Space>
+            <Button onClick={handleBatchDelete}>批量删除</Button>
+            <Button type="primary" onClick={() => setBatchAuthOpen(true)}>
+              批量授权到项目
+            </Button>
+          </Space>
+        </div>
+      )}
       <div className={styles.content}>
         <Table
           dataSource={viewInstance.displayTableList}
           columns={renderColumns()}
           loading={viewInstance.tableLoading}
-          onChange={(pagination, filters, sorter) => {
+          rowSelection={viewInstance.batchMode ? rowSelection : undefined}
+          onChange={(pagination, filters) => {
             viewInstance.typeFilters = filters?.datasourceType as FilterValue;
             viewInstance.nodeNamesFilter = filters?.nodeName as FilterValue;
             viewInstance.getTableList();
@@ -420,8 +537,6 @@ export const DataManagerComponent: React.FC = () => {
           }}
         />
       )}
-      {/*在 JSX 中渲染了DataAddDrawer，并传入了 visible / onClose 两个 props*/}
-      {/*visible 绑定的是 viewInstance.showDataAddDrawer（DataManagerView model 上的状态*/}
       <DataAddDrawer
         onClose={() => {
           viewInstance.getTableList();
@@ -429,6 +544,29 @@ export const DataManagerComponent: React.FC = () => {
         }}
         visible={viewInstance.showDataAddDrawer}
       />
+      <Modal
+        title="批量授权到项目"
+        open={batchAuthOpen}
+        onOk={handleBatchAuth}
+        onCancel={() => {
+          setBatchAuthOpen(false);
+          setBatchProjectId(undefined);
+        }}
+        okButtonProps={{ disabled: !batchProjectId }}
+      >
+        <div style={{ marginBottom: 16 }}>
+          已选择 <strong>{selectedCount}</strong> 个数据表，将授权到：
+        </div>
+        <Select
+          style={{ width: '100%' }}
+          placeholder="请选择项目"
+          options={projectOptions}
+          value={batchProjectId}
+          onChange={setBatchProjectId}
+          showSearch
+          optionFilterProp="label"
+        />
+      </Modal>
       {contextHolder}
     </div>
   );
@@ -471,6 +609,12 @@ export class DataManagerView extends Model {
 
   tableListTimeOut: NodeJS.Timeout | undefined;
 
+  batchMode = false;
+
+  selectedRowKeys: React.Key[] = [];
+
+  selectedRows: API.DatatableVO[] = [];
+
   guideTourService = getModel(GuideTourService);
   dataManagerService = getModel(DataManagerService);
   datatableInfoService = getModel(DatatableInfoService);
@@ -478,6 +622,21 @@ export class DataManagerView extends Model {
   onViewMount() {
     const { ownerId } = parse(window.location.search);
     this.getTableList(ownerId as string);
+    this.datatableInfoService.eventEmitter.on(this.refreshAfterAuthChange);
+  }
+
+  refreshAfterAuthChange = () => {
+    this.getTableList();
+  };
+
+  onViewUnMount() {
+    // Model 为全局单例，事件订阅无需取消
+  }
+
+  toggleBatchMode() {
+    this.batchMode = !this.batchMode;
+    this.selectedRowKeys = [];
+    this.selectedRows = [];
   }
 
   closeGuideTour() {
@@ -547,6 +706,84 @@ export class DataManagerView extends Model {
     }
     messageApi.success(`「${datatableName}」删除成功！`);
     this.pageNumber = 1;
+    this.getTableList();
+  };
+
+  batchDelete = async (
+    records: API.DatatableVO[],
+    isAutonomyMode: boolean,
+    ownerId: string,
+    messageApi: MessageInstance,
+  ) => {
+    const results = await Promise.allSettled(
+      records.map((record) =>
+        deleteDatatable({
+          nodeId: isAutonomyMode ? record.nodeId : ownerId,
+          datatableId: record.datatableId || '',
+          type: record.type as string,
+          datasourceType: record.datasourceType,
+        }),
+      ),
+    );
+    let successCount = 0;
+    results.forEach((result, index) => {
+      const name = records[index].datatableName || '';
+      if (result.status === 'fulfilled' && result.value.status?.code === 0) {
+        successCount += 1;
+      } else {
+        messageApi.error(
+          result.status === 'rejected'
+            ? result.reason?.message || '删除失败'
+            : `「${name}」${result.value.status?.msg || '删除失败'}`,
+        );
+      }
+    });
+    if (successCount > 0) {
+      messageApi.success(`成功删除 ${successCount} 个数据表`);
+    }
+    this.selectedRowKeys = [];
+    this.selectedRows = [];
+    this.pageNumber = 1;
+    this.getTableList();
+  };
+
+  batchAuth = async (
+    projectId: string,
+    isAutonomyMode: boolean,
+    ownerId: string,
+    messageApi: MessageInstance,
+  ) => {
+    const records = this.selectedRows;
+    if (records.length === 0) return;
+    const results = await Promise.allSettled(
+      records.map((record) =>
+        addProjectDatatable({
+          projectId,
+          nodeId: isAutonomyMode ? record.nodeId : ownerId,
+          datatableId: record.datatableId,
+          configs: [],
+          type: record.type,
+        }),
+      ),
+    );
+    let successCount = 0;
+    results.forEach((result, index) => {
+      const name = records[index].datatableName || '';
+      if (result.status === 'fulfilled' && result.value.status?.code === 0) {
+        successCount += 1;
+      } else {
+        messageApi.error(
+          result.status === 'rejected'
+            ? result.reason?.message || '授权失败'
+            : `「${name}」${result.value.status?.msg || '授权失败'}`,
+        );
+      }
+    });
+    if (successCount > 0) {
+      messageApi.success(`成功授权 ${successCount} 个数据表到项目`);
+    }
+    this.selectedRowKeys = [];
+    this.selectedRows = [];
     this.getTableList();
   };
 

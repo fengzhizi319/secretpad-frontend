@@ -341,6 +341,8 @@ export class DataTableAuth extends Model {
     const response = await getDatatable({
       datatableId: tableInfo.datatableId,
       nodeId: this.nodeService.currentNode?.nodeId,
+      type: tableInfo.type,
+      datasourceType: tableInfo.datasourceType,
     });
     this.tableInfo = {
       ...(response.data?.datatableVO || {}),
