@@ -1,7 +1,7 @@
 import { TableOutlined } from '@ant-design/icons';
-import { Card, Space, Table, Tag, Tooltip } from 'antd';
+import { Alert, Card, Space, Table, Tag, Tooltip, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { listDatatables } from '@/services/secretpad/DatatableController';
 import { listNode } from '@/services/secretpad/NodeController';
@@ -23,10 +23,12 @@ interface AggregatedDataTable {
 export const AllDataTablesComponent: React.FC = () => {
   const [data, setData] = useState<AggregatedDataTable[]>([]);
   const [loading, setLoading] = useState(false);
+  const [failedNodes, setFailedNodes] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
+      setFailedNodes([]);
       try {
         const nodeRes = await listNode();
         // 节点列表可能包含重复 nodeId（如 center/edge 同步问题），按 nodeId 去重
@@ -36,34 +38,57 @@ export const AllDataTablesComponent: React.FC = () => {
         );
 
         const tableMap = new Map<string, AggregatedDataTable>();
+        const failures: string[] = [];
+
         await Promise.all(
           nodes.map(async (node) => {
-            const res = await listDatatables({
-              ownerId: node.nodeId,
-              pageNumber: 1,
-              pageSize: 1000,
-            });
-            const tables = (res.data?.datatableNodeVOList ||
-              []) as API.DatatableNodeVO[];
-            tables.forEach((item) => {
-              const table = item.datatableVO || {};
-              const key = `${table.datatableId}-${item.nodeId}`;
-              if (tableMap.has(key)) return;
-              tableMap.set(key, {
-                datatableId: table.datatableId,
-                datatableName: table.datatableName,
-                status: table.status,
-                pushToTeeStatus: table.pushToTeeStatus,
-                datasourceName: table.datasourceName,
-                datasourceType: table.datasourceType,
-                nodeId: item.nodeId,
-                nodeName: item.nodeName,
-                authProjects: table.authProjects,
+            try {
+              const res = await listDatatables({
+                ownerId: node.nodeId,
+                pageNumber: 1,
+                pageSize: 1000,
               });
-            });
+              const tables = (res.data?.datatableNodeVOList ||
+                []) as API.DatatableNodeVO[];
+              // 单个节点内部按 datatableId 去重（防止 DomainData 与 HTTP feature table 重复）
+              const seenInNode = new Set<string>();
+              tables.forEach((item) => {
+                const table = item.datatableVO || {};
+                const nodeId = item.nodeId || node.nodeId;
+                const nodeName = item.nodeName || node.nodeName;
+                const id = table.datatableId;
+                if (!id) return;
+
+                const nodeLocalKey = `${id}-${nodeId}`;
+                if (seenInNode.has(nodeLocalKey)) return;
+                seenInNode.add(nodeLocalKey);
+
+                const globalKey = `${id}-${nodeId}-${table.datasourceType || 'LOCAL'}`;
+                if (tableMap.has(globalKey)) return;
+                tableMap.set(globalKey, {
+                  datatableId: id,
+                  datatableName: table.datatableName,
+                  status: table.status,
+                  pushToTeeStatus: table.pushToTeeStatus,
+                  datasourceName: table.datasourceName,
+                  datasourceType: table.datasourceType,
+                  nodeId,
+                  nodeName,
+                  authProjects: table.authProjects,
+                });
+              });
+            } catch (err) {
+              failures.push(node.nodeName || node.nodeId || '');
+            }
           }),
         );
+
+        if (failures.length > 0) {
+          setFailedNodes(failures);
+        }
         setData(Array.from(tableMap.values()));
+      } catch (err) {
+        message.error('加载数据表失败');
       } finally {
         setLoading(false);
       }
@@ -71,6 +96,17 @@ export const AllDataTablesComponent: React.FC = () => {
 
     fetchAll();
   }, []);
+
+  const nodeSummary = useMemo(() => {
+    const map = new Map<string, number>();
+    data.forEach((item) => {
+      const name = item.nodeName || item.nodeId || '未知节点';
+      map.set(name, (map.get(name) || 0) + 1);
+    });
+    return Array.from(map.entries())
+      .map(([name, count]) => `${name}: ${count}`)
+      .join('，');
+  }, [data]);
 
   const columns: ColumnsType<AggregatedDataTable> = [
     {
@@ -145,9 +181,20 @@ export const AllDataTablesComponent: React.FC = () => {
   return (
     <div className={styles.allDataTables}>
       <div className={styles.pageTitle}>数据表</div>
+      {failedNodes.length > 0 && (
+        <Alert
+          type="warning"
+          showIcon
+          message={`以下节点数据表加载失败：${failedNodes.join('、')}`}
+          style={{ marginBottom: 16 }}
+        />
+      )}
+      {nodeSummary && <div className={styles.summary}>节点分布：{nodeSummary}</div>}
       <Card className={styles.tableCard} bordered={false}>
         <Table
-          rowKey={(record) => `${record.datatableId}-${record.nodeId}`}
+          rowKey={(record) =>
+            `${record.datatableId}-${record.nodeId}-${record.datasourceType || 'LOCAL'}`
+          }
           columns={columns}
           dataSource={data}
           loading={loading}
