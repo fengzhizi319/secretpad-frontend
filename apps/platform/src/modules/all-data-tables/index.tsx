@@ -29,9 +29,13 @@ export const AllDataTablesComponent: React.FC = () => {
       setLoading(true);
       try {
         const nodeRes = await listNode();
-        const nodes = (nodeRes.data || []) as API.NodeVO[];
+        // 节点列表可能包含重复 nodeId（如 center/edge 同步问题），按 nodeId 去重
+        const nodes = ((nodeRes.data || []) as API.NodeVO[]).filter(
+          (node, index, arr) =>
+            arr.findIndex((n) => n.nodeId === node.nodeId) === index,
+        );
 
-        const allTables: AggregatedDataTable[] = [];
+        const tableMap = new Map<string, AggregatedDataTable>();
         await Promise.all(
           nodes.map(async (node) => {
             const res = await listDatatables({
@@ -43,7 +47,9 @@ export const AllDataTablesComponent: React.FC = () => {
               []) as API.DatatableNodeVO[];
             tables.forEach((item) => {
               const table = item.datatableVO || {};
-              allTables.push({
+              const key = `${table.datatableId}-${item.nodeId}`;
+              if (tableMap.has(key)) return;
+              tableMap.set(key, {
                 datatableId: table.datatableId,
                 datatableName: table.datatableName,
                 status: table.status,
@@ -57,7 +63,7 @@ export const AllDataTablesComponent: React.FC = () => {
             });
           }),
         );
-        setData(allTables);
+        setData(Array.from(tableMap.values()));
       } finally {
         setLoading(false);
       }
