@@ -131,6 +131,12 @@ export class SlsService extends Model {
   getSlsLogIsConfig = async () => {
     const { search } = window.location;
     const { projectId } = parse(search);
+    // URL 中缺少 projectId 时（例如未选择项目直接访问 /dag），
+    // 不调用 cloud_log/sls 接口，避免触发 "projectId 不能为空" 的入参校验错误。
+    if (!projectId) {
+      this.slsLogIsConfig = false;
+      return;
+    }
     const { status, data } = await API.CloudLogController.getCloudLog({
       projectId: projectId as string,
     });

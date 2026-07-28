@@ -74,6 +74,14 @@ export class DefaultPipelineService extends Model {
     const { search } = window.location;
     const { projectId } = parse(search);
 
+    // URL 中缺少 projectId 时（例如未选择项目直接访问 /dag），
+    // 不调用后端 graph/list 接口，避免触发 "projectId 不能为空" 的入参校验错误，
+    // 直接返回空列表，页面展示 "暂无训练流" 空状态。
+    if (!projectId) {
+      this.pipelines = [];
+      return [];
+    }
+
     const { data } = await listGraph({ projectId } as { projectId: string });
     this.pipelines = (data as Pipeline[]) || [];
 
